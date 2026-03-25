@@ -24,6 +24,7 @@ namespace TaskFlowManagement.WinForms.Forms
             this.btnStatus       = new Button();
             this.btnMembers      = new Button();
             this.btnDetail       = new Button();
+            this.btnKanban       = new Button();
             this.lblCount        = new Label();
             this.dgvProjects     = new DataGridView();
             this.panelStatus     = new Panel();
@@ -94,7 +95,7 @@ namespace TaskFlowManagement.WinForms.Forms
             this.panelToolbar.Dock = DockStyle.Top;
             this.panelToolbar.Height = 50;
             this.panelToolbar.Controls.AddRange(new Control[]
-            { btnAdd, btnEdit, btnDelete, btnStatus, btnMembers, btnDetail, lblCount });
+            { btnAdd, btnEdit, btnDelete, btnStatus, btnMembers, btnDetail, btnKanban, lblCount });
 
             int bx = 14; int bw = 110; int bg = 6; int bh = 34; int by = 9;
 
@@ -132,6 +133,12 @@ namespace TaskFlowManagement.WinForms.Forms
             btnDetail.Enabled = false;
             btnDetail.Click += btnDetail_Click;
             bx += 100 + bg;
+
+            // Kanban board
+            SetToolButton(btnKanban, "🗂 Kanban", System.Drawing.Color.FromArgb(14, 116, 144), bx, by, 110, bh);
+            btnKanban.Enabled = false;
+            btnKanban.Click += btnKanban_Click;
+            bx += 110 + bg;
 
             this.lblCount.AutoSize = false;
             this.lblCount.Font = new System.Drawing.Font("Segoe UI", 9F);
@@ -231,7 +238,7 @@ namespace TaskFlowManagement.WinForms.Forms
         private Label lblHeader, lblCount, lblStatus;
         private TextBox txtSearch;
         private ComboBox cboFilterStatus;
-        private Button btnRefresh, btnAdd, btnEdit, btnDelete, btnStatus, btnMembers, btnDetail;
+        private Button btnRefresh, btnAdd, btnEdit, btnDelete, btnStatus, btnMembers, btnDetail, btnKanban;
         private DataGridView dgvProjects;
         private DataGridViewTextBoxColumn colId, colName, colCustomer, colOwner, colProjStatus, colMembers, colDeadline, colBudget, colStartDate;
     }

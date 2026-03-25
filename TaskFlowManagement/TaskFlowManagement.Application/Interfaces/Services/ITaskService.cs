@@ -153,5 +153,11 @@ namespace TaskFlowManagement.Core.Interfaces.Services
         /// Dùng cho dropdown Category trong frmTaskEdit.
         /// </summary>
         Task<List<Category>> GetAllCategoriesAsync();
+
+        /// <summary>
+        /// Lấy toàn bộ task của dự án để hiển thị lên Kanban Board.
+        /// Đã bao gồm logic sắp xếp: Priority (Critical -> Low) và DueDate (Gần -> Xa).
+        /// </summary>
+        Task<List<TaskItem>> GetBoardTasksAsync(int projectId);
     }
 }

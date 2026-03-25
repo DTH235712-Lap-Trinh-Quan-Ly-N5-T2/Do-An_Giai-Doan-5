@@ -65,6 +65,35 @@ namespace TaskFlowManagement.Core.Services.Tasks
         public Task<Dictionary<string, int>> GetStatusSummaryAsync(int projectId)
             => _taskRepo.GetStatusSummaryByProjectAsync(projectId);
 
+        public async Task<List<TaskItem>> GetBoardTasksAsync(int projectId)
+        {
+            int page = 1;
+            int pageSize = 200;
+            var allTasks = new List<TaskItem>();
+
+            // Gom tất cả task của Project này
+            while (true)
+            {
+                var (items, totalCount) = await _taskRepo.GetPagedAsync(
+                    page: page,
+                    pageSize: pageSize,
+                    projectId: projectId);
+
+                if (items.Count == 0) break;
+
+                allTasks.AddRange(items);
+
+                if (allTasks.Count >= totalCount || items.Count < pageSize) break;
+
+                page++;
+            }
+
+            // 🚀 ÁP DỤNG LOGIC SẮP XẾP CHUẨN KANBAN (LINQ)
+            return allTasks
+                .OrderByDescending(t => t.PriorityId) // Tiêu chí 1: Critical (4), High (3) lên đầu
+                .ThenBy(t => t.DueDate ?? DateTime.MaxValue) // Tiêu chí 2: Gần hạn lên đầu, Null đẩy xuống cuối
+                .ToList();
+        }
         // ══════════════════════════════════════════════════════
         // CRUD
         // ══════════════════════════════════════════════════════

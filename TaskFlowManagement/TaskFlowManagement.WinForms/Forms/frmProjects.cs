@@ -14,15 +14,17 @@ namespace TaskFlowManagement.WinForms.Forms
     {
         private readonly IProjectService _projectService;
         private readonly IUserService _userService;
+        private readonly ITaskService _taskService;
         private readonly ICustomerRepository _customerRepo;
         private List<Project> _allProjects = new();
         private Project? _selectedProject;
 
         public frmProjects(IProjectService projectService, IUserService userService,
-            ICustomerRepository customerRepo)
+            ITaskService taskService, ICustomerRepository customerRepo)
         {
             _projectService = projectService;
             _userService    = userService;
+            _taskService    = taskService;
             _customerRepo   = customerRepo;
             InitializeComponent();
             SetupPermissions();
@@ -153,6 +155,7 @@ namespace TaskFlowManagement.WinForms.Forms
             btnMembers.Enabled = sel;
             btnStatus.Enabled  = sel;
             btnDetail.Enabled  = sel;
+            btnKanban.Enabled  = sel;
         }
 
         // ── Thêm dự án mới ───────────────────────────────────
@@ -215,6 +218,20 @@ namespace TaskFlowManagement.WinForms.Forms
             using var dlg = new frmProjectMembers(_projectService, _userService, _selectedProject);
             dlg.ShowDialog(this);
             await LoadProjectsAsync();
+        }
+
+        // ── Xem Kanban board theo Project ─────────────────────
+        private void btnKanban_Click(object sender, EventArgs e)
+        {
+            if (_selectedProject == null)
+            {
+                MessageBox.Show("Vui lòng chọn một dự án để xem Kanban Board.",
+                    "Chưa chọn dự án", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            using var dlg = new frmKanban(_taskService, _projectService, _userService, _selectedProject.Id);
+            dlg.ShowDialog(this);
         }
 
         // ── Chi tiết dự án (UC-15) ───────────────────────────
