@@ -162,7 +162,15 @@ namespace TaskFlowManagement.WinForms.Forms
             => OpenMdiChild(_serviceProvider.GetRequiredService<frmTaskList>());
 
         private void menuKanban_Click(object sender, EventArgs e)
-            => ShowComingSoon("Kanban Board", "Giai đoạn 5");
+        {
+            MessageBox.Show("Bảng Kanban cần được gắn với một dự án cụ thể.\n\nVui lòng chọn một Dự án trong danh sách và bấm nút 'Kanban' trên thanh công cụ nhé!",
+                            "Hướng dẫn",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Information);
+
+            // Tự động chuyển hướng mở form Danh sách Dự án luôn cho tiện
+            OpenMdiChild(_serviceProvider.GetRequiredService<frmProjects>());
+        }
 
         /// <summary>
         /// Mở form Công việc của tôi — GD4.
