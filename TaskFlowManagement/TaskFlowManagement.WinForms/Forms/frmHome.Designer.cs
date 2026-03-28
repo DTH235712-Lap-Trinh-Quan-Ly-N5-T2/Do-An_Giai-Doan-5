@@ -1,360 +1,423 @@
+using TaskFlowManagement.WinForms.Common;
+
 namespace TaskFlowManagement.WinForms.Forms
 {
-    partial class frmHome
+    partial class frmHome   // BaseForm declared in frmHome.cs
     {
         private System.ComponentModel.IContainer components = null;
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null)) components.Dispose();
+            if (disposing && components != null) components.Dispose();
             base.Dispose(disposing);
         }
 
         private void InitializeComponent()
         {
-            this.panelHeader      = new System.Windows.Forms.Panel();
-            this.lblGreeting      = new System.Windows.Forms.Label();
-            this.lblRole          = new System.Windows.Forms.Label();
-            this.lblLastLogin     = new System.Windows.Forms.Label();
-            this.panelAccentLine  = new System.Windows.Forms.Panel();
-            this.panelStats       = new System.Windows.Forms.Panel();
+            // ── Instantiation ─────────────────────────────────────────────────
+            panelHeader = new Panel();
+            panelAccentLine = new Panel();
+            lblHeader = new Label();
+
+            panelBody = new Panel();
+            panelWelcome = new Panel();
+            lblGreeting = new Label();
+            lblRole = new Label();
+            lblLastLogin = new Label();
+
+            panelStats = new Panel();
+            flowCards = new FlowLayoutPanel();
+            lblNote = new Label();
 
             // Card 1 – Dự án đang chạy
-            this.panelCard1       = new System.Windows.Forms.Panel();
-            this.panelCard1Top    = new System.Windows.Forms.Panel();
-            this.lblCard1Icon     = new System.Windows.Forms.Label();
-            this.lblCard1Title    = new System.Windows.Forms.Label();
-            this.lblStatProjects  = new System.Windows.Forms.Label();
-            this.lblCard1Sub      = new System.Windows.Forms.Label();
+            panelCard1 = new Panel();
+            panelCard1Top = new Panel();
+            lblCard1Icon = new Label();
+            lblCard1Title = new Label();
+            lblStatProjects = new Label();
+            lblCard1Sub = new Label();
 
             // Card 2 – Công việc của tôi
-            this.panelCard2       = new System.Windows.Forms.Panel();
-            this.panelCard2Top    = new System.Windows.Forms.Panel();
-            this.lblCard2Icon     = new System.Windows.Forms.Label();
-            this.lblCard2Title    = new System.Windows.Forms.Label();
-            this.lblStatTasks     = new System.Windows.Forms.Label();
-            this.lblCard2Sub      = new System.Windows.Forms.Label();
+            panelCard2 = new Panel();
+            panelCard2Top = new Panel();
+            lblCard2Icon = new Label();
+            lblCard2Title = new Label();
+            lblStatTasks = new Label();
+            lblCard2Sub = new Label();
 
             // Card 3 – Quá hạn
-            this.panelCard3       = new System.Windows.Forms.Panel();
-            this.panelCard3Top    = new System.Windows.Forms.Panel();
-            this.lblCard3Icon     = new System.Windows.Forms.Label();
-            this.lblCard3Title    = new System.Windows.Forms.Label();
-            this.lblStatOverdue   = new System.Windows.Forms.Label();
-            this.lblCard3Sub      = new System.Windows.Forms.Label();
+            panelCard3 = new Panel();
+            panelCard3Top = new Panel();
+            lblCard3Icon = new Label();
+            lblCard3Title = new Label();
+            lblStatOverdue = new Label();
+            lblCard3Sub = new Label();
 
             // Card 4 – Hoàn thành tháng này
-            this.panelCard4       = new System.Windows.Forms.Panel();
-            this.panelCard4Top    = new System.Windows.Forms.Panel();
-            this.lblCard4Icon     = new System.Windows.Forms.Label();
-            this.lblCard4Title    = new System.Windows.Forms.Label();
-            this.lblStatDone      = new System.Windows.Forms.Label();
-            this.lblCard4Sub      = new System.Windows.Forms.Label();
+            panelCard4 = new Panel();
+            panelCard4Top = new Panel();
+            lblCard4Icon = new Label();
+            lblCard4Title = new Label();
+            lblStatDone = new Label();
+            lblCard4Sub = new Label();
 
-            this.lblNote          = new System.Windows.Forms.Label();
-
-            // FIX: FlowLayoutPanel để cards tự layout khi resize
-            this.flowCards        = new System.Windows.Forms.FlowLayoutPanel();
-
-            this.panelHeader.SuspendLayout();
-            this.panelStats.SuspendLayout();
+            panelHeader.SuspendLayout();
+            panelBody.SuspendLayout();
+            panelWelcome.SuspendLayout();
+            panelStats.SuspendLayout();
             this.SuspendLayout();
 
-            // ── panelHeader ──────────────────────────────────────
-            this.panelHeader.BackColor = System.Drawing.Color.FromArgb(15, 23, 42);
-            this.panelHeader.Dock      = System.Windows.Forms.DockStyle.Top;
-            this.panelHeader.Height    = 110;
-            this.panelHeader.Name      = "panelHeader";
-            this.panelHeader.Controls.AddRange(new System.Windows.Forms.Control[]
-            { this.lblGreeting, this.lblRole, this.lblLastLogin, this.panelAccentLine });
+            // ════════════════════════════════════════════════════
+            // panelHeader — Dark banner
+            // ════════════════════════════════════════════════════
+            panelHeader.BackColor = UIHelper.ColorHeaderBg;
+            panelHeader.Dock = DockStyle.Top;
+            panelHeader.Height = 58;
+            panelHeader.Name = "panelHeader";
+            panelHeader.Controls.Add(lblHeader);
+            panelHeader.Controls.Add(panelAccentLine);
 
-            this.panelAccentLine.BackColor = System.Drawing.Color.FromArgb(37, 99, 235);
-            this.panelAccentLine.Dock      = System.Windows.Forms.DockStyle.Bottom;
-            this.panelAccentLine.Height    = 3;
-            this.panelAccentLine.Name      = "panelAccentLine";
+            panelAccentLine.BackColor = System.Drawing.Color.FromArgb(37, 99, 235);
+            panelAccentLine.Dock = DockStyle.Bottom;
+            panelAccentLine.Height = 4;
+            panelAccentLine.Name = "panelAccentLine";
 
-            this.lblGreeting.AutoSize  = false;
-            this.lblGreeting.Font      = new System.Drawing.Font("Segoe UI", 18F, System.Drawing.FontStyle.Bold);
-            this.lblGreeting.ForeColor = System.Drawing.Color.White;
-            this.lblGreeting.Location  = new System.Drawing.Point(24, 12);
-            this.lblGreeting.Name      = "lblGreeting";
-            this.lblGreeting.Size      = new System.Drawing.Size(900, 40);
-            this.lblGreeting.Text      = "Chào buổi sáng, ...! 👋";
+            // lblHeader — tiêu đề sẽ được cập nhật trong LoadWelcomeInfo()
+            lblHeader.AutoSize = false;
+            lblHeader.Dock = DockStyle.Fill;
+            lblHeader.Font = UIHelper.FontHeaderLarge;
+            lblHeader.ForeColor = UIHelper.ColorHeaderFg;
+            lblHeader.Name = "lblHeader";
+            lblHeader.Padding = new Padding(18, 0, 0, 4);
+            lblHeader.Text = "🏠  Trang chủ";
+            lblHeader.TextAlign = ContentAlignment.MiddleLeft;
 
-            this.lblRole.AutoSize  = false;
-            this.lblRole.Font      = new System.Drawing.Font("Segoe UI", 9.5F);
-            this.lblRole.ForeColor = System.Drawing.Color.FromArgb(148, 163, 184);
-            this.lblRole.Location  = new System.Drawing.Point(26, 54);
-            this.lblRole.Name      = "lblRole";
-            this.lblRole.Size      = new System.Drawing.Size(400, 22);
-            this.lblRole.Text      = "Vai trò: ...";
+            // ════════════════════════════════════════════════════
+            // panelBody — Container toàn bộ nội dung bên dưới header
+            // ════════════════════════════════════════════════════
+            panelBody.BackColor = UIHelper.ColorBackground;
+            panelBody.Dock = DockStyle.Fill;
+            panelBody.Name = "panelBody";
+            panelBody.Controls.Add(panelStats);
+            panelBody.Controls.Add(panelWelcome);
 
-            this.lblLastLogin.AutoSize  = false;
-            this.lblLastLogin.Font      = new System.Drawing.Font("Segoe UI", 9F);
-            this.lblLastLogin.ForeColor = System.Drawing.Color.FromArgb(100, 116, 139);
-            this.lblLastLogin.Location  = new System.Drawing.Point(26, 78);
-            this.lblLastLogin.Name      = "lblLastLogin";
-            this.lblLastLogin.Size      = new System.Drawing.Size(500, 20);
-            this.lblLastLogin.Text      = "";
+            // ════════════════════════════════════════════════════
+            // panelWelcome — Dòng chào + thông tin user (Dock Top trong panelBody)
+            // ════════════════════════════════════════════════════
+            panelWelcome.BackColor = UIHelper.ColorHeaderBg;
+            panelWelcome.Dock = DockStyle.Top;
+            panelWelcome.Height = 98;
+            panelWelcome.Name = "panelWelcome";
+            panelWelcome.Padding = new Padding(24, 12, 24, 0);
+            panelWelcome.Controls.AddRange(new Control[]
+            { lblGreeting, lblRole, lblLastLogin });
 
-            // ── panelStats (container chính) ─────────────────────
-            this.panelStats.BackColor = System.Drawing.Color.FromArgb(241, 245, 249);
-            this.panelStats.Dock      = System.Windows.Forms.DockStyle.Fill;
-            this.panelStats.Name      = "panelStats";
-            this.panelStats.Padding   = new System.Windows.Forms.Padding(20, 16, 20, 16);
-            this.panelStats.Controls.Add(this.lblNote);
-            this.panelStats.Controls.Add(this.flowCards);
+            lblGreeting.AutoSize = false;
+            lblGreeting.Font = new System.Drawing.Font("Segoe UI", 18F, System.Drawing.FontStyle.Bold);
+            lblGreeting.ForeColor = System.Drawing.Color.White;
+            lblGreeting.Location = new Point(24, 12);
+            lblGreeting.Name = "lblGreeting";
+            lblGreeting.Size = new System.Drawing.Size(900, 38);
+            lblGreeting.Text = "Chào buổi sáng, ...! 👋";
 
-            // ── FIX: FlowLayoutPanel để cards tự xếp khi resize ──
-            this.flowCards.Dock      = System.Windows.Forms.DockStyle.Top;
-            this.flowCards.AutoSize  = true;
-            this.flowCards.BackColor = System.Drawing.Color.Transparent;
-            this.flowCards.Name      = "flowCards";
-            this.flowCards.Padding   = new System.Windows.Forms.Padding(8, 10, 8, 10);
-            this.flowCards.WrapContents = true;
-            this.flowCards.Controls.AddRange(new System.Windows.Forms.Control[]
-            { this.panelCard1, this.panelCard2, this.panelCard3, this.panelCard4 });
+            lblRole.AutoSize = false;
+            lblRole.Font = UIHelper.FontBase;
+            lblRole.ForeColor = UIHelper.ColorSubtitle;
+            lblRole.Location = new Point(26, 54);
+            lblRole.Name = "lblRole";
+            lblRole.Size = new System.Drawing.Size(500, 20);
+            lblRole.Text = "Vai trò: ...";
 
-            // ── Helper: kích thước card cố định ──────────────────
-            var cardSize = new System.Drawing.Size(220, 150);
-            var cardMargin = new System.Windows.Forms.Padding(10, 5, 10, 5);
+            lblLastLogin.AutoSize = false;
+            lblLastLogin.Font = UIHelper.FontSmall;
+            lblLastLogin.ForeColor = System.Drawing.Color.FromArgb(100, 116, 139);
+            lblLastLogin.Location = new Point(26, 76);
+            lblLastLogin.Name = "lblLastLogin";
+            lblLastLogin.Size = new System.Drawing.Size(500, 18);
+            lblLastLogin.Text = "";
 
-            // ── Card 1: Dự án đang chạy ─────────────────────────
-            this.panelCard1.BackColor   = System.Drawing.Color.White;
-            this.panelCard1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panelCard1.Name        = "panelCard1";
-            this.panelCard1.Size        = cardSize;
-            this.panelCard1.Margin      = cardMargin;
-            this.panelCard1.Controls.AddRange(new System.Windows.Forms.Control[]
-            { this.panelCard1Top, this.lblCard1Icon, this.lblCard1Title, this.lblStatProjects, this.lblCard1Sub });
+            // ════════════════════════════════════════════════════
+            // panelStats — container cards + lblNote (Dock Fill trong panelBody)
+            // ════════════════════════════════════════════════════
+            panelStats.BackColor = UIHelper.ColorBackground;
+            panelStats.Dock = DockStyle.Fill;
+            panelStats.Name = "panelStats";
+            panelStats.Padding = new Padding(20, 16, 20, 8);
+            panelStats.Controls.Add(lblNote);
+            panelStats.Controls.Add(flowCards);
 
-            this.panelCard1Top.BackColor = System.Drawing.Color.FromArgb(37, 99, 235);
-            this.panelCard1Top.Dock      = System.Windows.Forms.DockStyle.Top;
-            this.panelCard1Top.Height    = 5;
-            this.panelCard1Top.Name      = "panelCard1Top";
+            // flowCards
+            flowCards.AutoSize = true;
+            flowCards.BackColor = System.Drawing.Color.Transparent;
+            flowCards.Dock = DockStyle.Top;
+            flowCards.Name = "flowCards";
+            flowCards.Padding = new Padding(0, 0, 0, 0);
+            flowCards.WrapContents = true;
+            flowCards.Controls.AddRange(new Control[]
+            { panelCard1, panelCard2, panelCard3, panelCard4 });
 
-            this.lblCard1Icon.Font      = new System.Drawing.Font("Segoe UI Emoji", 22F);
-            this.lblCard1Icon.ForeColor = System.Drawing.Color.FromArgb(37, 99, 235);
-            this.lblCard1Icon.Location  = new System.Drawing.Point(14, 14);
-            this.lblCard1Icon.Name      = "lblCard1Icon";
-            this.lblCard1Icon.Size      = new System.Drawing.Size(44, 40);
-            this.lblCard1Icon.Text      = "📁";
-            this.lblCard1Icon.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // lblNote
+            lblNote.AutoSize = false;
+            lblNote.Font = UIHelper.FontSmall;
+            lblNote.ForeColor = UIHelper.ColorMuted;
+            lblNote.Dock = DockStyle.Bottom;
+            lblNote.Name = "lblNote";
+            lblNote.Padding = new Padding(4, 0, 0, 8);
+            lblNote.Size = new System.Drawing.Size(0, 28);
+            lblNote.Text = "ℹ️  Đang tải số liệu...";
 
-            this.lblCard1Title.Font      = new System.Drawing.Font("Segoe UI", 8F, System.Drawing.FontStyle.Bold);
-            this.lblCard1Title.ForeColor = System.Drawing.Color.FromArgb(100, 116, 139);
-            this.lblCard1Title.Location  = new System.Drawing.Point(64, 20);
-            this.lblCard1Title.Name      = "lblCard1Title";
-            this.lblCard1Title.Size      = new System.Drawing.Size(150, 16);
-            this.lblCard1Title.Text      = "DỰ ÁN ĐANG CHẠY";
+            // ════════════════════════════════════════════════════
+            // Helper — kích thước card đồng nhất
+            // ════════════════════════════════════════════════════
+            var cardSize = new System.Drawing.Size(240, 162);
+            var cardMargin = new Padding(10, 8, 10, 8);
 
-            this.lblStatProjects.Font      = new System.Drawing.Font("Segoe UI", 32F, System.Drawing.FontStyle.Bold);
-            this.lblStatProjects.ForeColor = System.Drawing.Color.FromArgb(37, 99, 235);
-            this.lblStatProjects.Location  = new System.Drawing.Point(14, 56);
-            this.lblStatProjects.Name      = "lblStatProjects";
-            this.lblStatProjects.Size      = new System.Drawing.Size(190, 56);
-            this.lblStatProjects.Text      = "...";
+            // ════════════════════════════════════════════════════
+            // Card 1 — Dự án đang chạy (Blue)
+            // ════════════════════════════════════════════════════
+            panelCard1.BackColor = System.Drawing.Color.White;
+            panelCard1.BorderStyle = BorderStyle.FixedSingle;
+            panelCard1.Cursor = Cursors.Hand;
+            panelCard1.Name = "panelCard1";
+            panelCard1.Size = cardSize;
+            panelCard1.Margin = cardMargin;
+            panelCard1.Controls.AddRange(new Control[]
+            { panelCard1Top, lblCard1Icon, lblCard1Title, lblStatProjects, lblCard1Sub });
 
-            this.lblCard1Sub.Font      = new System.Drawing.Font("Segoe UI", 8F);
-            this.lblCard1Sub.ForeColor = System.Drawing.Color.FromArgb(148, 163, 184);
-            this.lblCard1Sub.Location  = new System.Drawing.Point(14, 116);
-            this.lblCard1Sub.Name      = "lblCard1Sub";
-            this.lblCard1Sub.Size      = new System.Drawing.Size(190, 16);
-            this.lblCard1Sub.Text      = "dự án InProgress";
+            panelCard1Top.BackColor = System.Drawing.Color.FromArgb(37, 99, 235);
+            panelCard1Top.Dock = DockStyle.Top;
+            panelCard1Top.Height = 5;
+            panelCard1Top.Name = "panelCard1Top";
 
-            // ── Card 2: Công việc của tôi ────────────────────────
-            this.panelCard2.BackColor   = System.Drawing.Color.White;
-            this.panelCard2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panelCard2.Name        = "panelCard2";
-            this.panelCard2.Size        = cardSize;
-            this.panelCard2.Margin      = cardMargin;
-            this.panelCard2.Controls.AddRange(new System.Windows.Forms.Control[]
-            { this.panelCard2Top, this.lblCard2Icon, this.lblCard2Title, this.lblStatTasks, this.lblCard2Sub });
+            lblCard1Icon.Font = new System.Drawing.Font("Segoe UI Emoji", 22F);
+            lblCard1Icon.ForeColor = System.Drawing.Color.FromArgb(37, 99, 235);
+            lblCard1Icon.Location = new Point(14, 14);
+            lblCard1Icon.Name = "lblCard1Icon";
+            lblCard1Icon.Size = new System.Drawing.Size(44, 40);
+            lblCard1Icon.Text = "📁";
+            lblCard1Icon.TextAlign = ContentAlignment.MiddleCenter;
 
-            this.panelCard2Top.BackColor = System.Drawing.Color.FromArgb(5, 150, 105);
-            this.panelCard2Top.Dock      = System.Windows.Forms.DockStyle.Top;
-            this.panelCard2Top.Height    = 5;
-            this.panelCard2Top.Name      = "panelCard2Top";
+            lblCard1Title.Font = new System.Drawing.Font("Segoe UI", 8F, System.Drawing.FontStyle.Bold);
+            lblCard1Title.ForeColor = UIHelper.ColorMuted;
+            lblCard1Title.Location = new Point(64, 22);
+            lblCard1Title.Name = "lblCard1Title";
+            lblCard1Title.Size = new System.Drawing.Size(162, 16);
+            lblCard1Title.Text = "DỰ ÁN ĐANG CHẠY";
 
-            this.lblCard2Icon.Font      = new System.Drawing.Font("Segoe UI Emoji", 22F);
-            this.lblCard2Icon.ForeColor = System.Drawing.Color.FromArgb(5, 150, 105);
-            this.lblCard2Icon.Location  = new System.Drawing.Point(14, 14);
-            this.lblCard2Icon.Name      = "lblCard2Icon";
-            this.lblCard2Icon.Size      = new System.Drawing.Size(44, 40);
-            this.lblCard2Icon.Text      = "✅";
-            this.lblCard2Icon.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            lblStatProjects.Font = new System.Drawing.Font("Segoe UI", 32F, System.Drawing.FontStyle.Bold);
+            lblStatProjects.ForeColor = System.Drawing.Color.FromArgb(37, 99, 235);
+            lblStatProjects.Location = new Point(14, 58);
+            lblStatProjects.Name = "lblStatProjects";
+            lblStatProjects.Size = new System.Drawing.Size(200, 60);
+            lblStatProjects.Text = "...";
 
-            this.lblCard2Title.Font      = new System.Drawing.Font("Segoe UI", 8F, System.Drawing.FontStyle.Bold);
-            this.lblCard2Title.ForeColor = System.Drawing.Color.FromArgb(100, 116, 139);
-            this.lblCard2Title.Location  = new System.Drawing.Point(64, 20);
-            this.lblCard2Title.Name      = "lblCard2Title";
-            this.lblCard2Title.Size      = new System.Drawing.Size(150, 16);
-            this.lblCard2Title.Text      = "CÔNG VIỆC CỦA TÔI";
+            lblCard1Sub.Font = UIHelper.FontSmall;
+            lblCard1Sub.ForeColor = UIHelper.ColorSubtitle;
+            lblCard1Sub.Location = new Point(14, 122);
+            lblCard1Sub.Name = "lblCard1Sub";
+            lblCard1Sub.Size = new System.Drawing.Size(200, 16);
+            lblCard1Sub.Text = "dự án InProgress";
 
-            this.lblStatTasks.Font      = new System.Drawing.Font("Segoe UI", 32F, System.Drawing.FontStyle.Bold);
-            this.lblStatTasks.ForeColor = System.Drawing.Color.FromArgb(5, 150, 105);
-            this.lblStatTasks.Location  = new System.Drawing.Point(14, 56);
-            this.lblStatTasks.Name      = "lblStatTasks";
-            this.lblStatTasks.Size      = new System.Drawing.Size(190, 56);
-            this.lblStatTasks.Text      = "...";
+            // ════════════════════════════════════════════════════
+            // Card 2 — Công việc của tôi (Green / Teal)
+            // ════════════════════════════════════════════════════
+            panelCard2.BackColor = System.Drawing.Color.White;
+            panelCard2.BorderStyle = BorderStyle.FixedSingle;
+            panelCard2.Cursor = Cursors.Hand;
+            panelCard2.Name = "panelCard2";
+            panelCard2.Size = cardSize;
+            panelCard2.Margin = cardMargin;
+            panelCard2.Controls.AddRange(new Control[]
+            { panelCard2Top, lblCard2Icon, lblCard2Title, lblStatTasks, lblCard2Sub });
 
-            this.lblCard2Sub.Font      = new System.Drawing.Font("Segoe UI", 8F);
-            this.lblCard2Sub.ForeColor = System.Drawing.Color.FromArgb(148, 163, 184);
-            this.lblCard2Sub.Location  = new System.Drawing.Point(14, 116);
-            this.lblCard2Sub.Name      = "lblCard2Sub";
-            this.lblCard2Sub.Size      = new System.Drawing.Size(190, 16);
-            this.lblCard2Sub.Text      = "task được giao";
+            panelCard2Top.BackColor = System.Drawing.Color.FromArgb(5, 150, 105);
+            panelCard2Top.Dock = DockStyle.Top;
+            panelCard2Top.Height = 5;
+            panelCard2Top.Name = "panelCard2Top";
 
-            // ── Card 3: Quá hạn ──────────────────────────────────
-            this.panelCard3.BackColor   = System.Drawing.Color.White;
-            this.panelCard3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panelCard3.Name        = "panelCard3";
-            this.panelCard3.Size        = cardSize;
-            this.panelCard3.Margin      = cardMargin;
-            this.panelCard3.Controls.AddRange(new System.Windows.Forms.Control[]
-            { this.panelCard3Top, this.lblCard3Icon, this.lblCard3Title, this.lblStatOverdue, this.lblCard3Sub });
+            lblCard2Icon.Font = new System.Drawing.Font("Segoe UI Emoji", 22F);
+            lblCard2Icon.ForeColor = System.Drawing.Color.FromArgb(5, 150, 105);
+            lblCard2Icon.Location = new Point(14, 14);
+            lblCard2Icon.Name = "lblCard2Icon";
+            lblCard2Icon.Size = new System.Drawing.Size(44, 40);
+            lblCard2Icon.Text = "✅";
+            lblCard2Icon.TextAlign = ContentAlignment.MiddleCenter;
 
-            this.panelCard3Top.BackColor = System.Drawing.Color.FromArgb(220, 38, 38);
-            this.panelCard3Top.Dock      = System.Windows.Forms.DockStyle.Top;
-            this.panelCard3Top.Height    = 5;
-            this.panelCard3Top.Name      = "panelCard3Top";
+            lblCard2Title.Font = new System.Drawing.Font("Segoe UI", 8F, System.Drawing.FontStyle.Bold);
+            lblCard2Title.ForeColor = UIHelper.ColorMuted;
+            lblCard2Title.Location = new Point(64, 22);
+            lblCard2Title.Name = "lblCard2Title";
+            lblCard2Title.Size = new System.Drawing.Size(162, 16);
+            lblCard2Title.Text = "CÔNG VIỆC CỦA TÔI";
 
-            this.lblCard3Icon.Font      = new System.Drawing.Font("Segoe UI Emoji", 22F);
-            this.lblCard3Icon.ForeColor = System.Drawing.Color.FromArgb(220, 38, 38);
-            this.lblCard3Icon.Location  = new System.Drawing.Point(14, 14);
-            this.lblCard3Icon.Name      = "lblCard3Icon";
-            this.lblCard3Icon.Size      = new System.Drawing.Size(44, 40);
-            this.lblCard3Icon.Text      = "⚠";
-            this.lblCard3Icon.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            lblStatTasks.Font = new System.Drawing.Font("Segoe UI", 32F, System.Drawing.FontStyle.Bold);
+            lblStatTasks.ForeColor = System.Drawing.Color.FromArgb(5, 150, 105);
+            lblStatTasks.Location = new Point(14, 58);
+            lblStatTasks.Name = "lblStatTasks";
+            lblStatTasks.Size = new System.Drawing.Size(200, 60);
+            lblStatTasks.Text = "...";
 
-            this.lblCard3Title.Font      = new System.Drawing.Font("Segoe UI", 8F, System.Drawing.FontStyle.Bold);
-            this.lblCard3Title.ForeColor = System.Drawing.Color.FromArgb(100, 116, 139);
-            this.lblCard3Title.Location  = new System.Drawing.Point(64, 20);
-            this.lblCard3Title.Name      = "lblCard3Title";
-            this.lblCard3Title.Size      = new System.Drawing.Size(150, 16);
-            this.lblCard3Title.Text      = "QUÁ HẠN";
+            lblCard2Sub.Font = UIHelper.FontSmall;
+            lblCard2Sub.ForeColor = UIHelper.ColorSubtitle;
+            lblCard2Sub.Location = new Point(14, 122);
+            lblCard2Sub.Name = "lblCard2Sub";
+            lblCard2Sub.Size = new System.Drawing.Size(200, 16);
+            lblCard2Sub.Text = "task được giao";
 
-            this.lblStatOverdue.Font      = new System.Drawing.Font("Segoe UI", 32F, System.Drawing.FontStyle.Bold);
-            this.lblStatOverdue.ForeColor = System.Drawing.Color.FromArgb(220, 38, 38);
-            this.lblStatOverdue.Location  = new System.Drawing.Point(14, 56);
-            this.lblStatOverdue.Name      = "lblStatOverdue";
-            this.lblStatOverdue.Size      = new System.Drawing.Size(190, 56);
-            this.lblStatOverdue.Text      = "...";
+            // ════════════════════════════════════════════════════
+            // Card 3 — Quá hạn (Red)
+            // ════════════════════════════════════════════════════
+            panelCard3.BackColor = System.Drawing.Color.White;
+            panelCard3.BorderStyle = BorderStyle.FixedSingle;
+            panelCard3.Cursor = Cursors.Hand;
+            panelCard3.Name = "panelCard3";
+            panelCard3.Size = cardSize;
+            panelCard3.Margin = cardMargin;
+            panelCard3.Controls.AddRange(new Control[]
+            { panelCard3Top, lblCard3Icon, lblCard3Title, lblStatOverdue, lblCard3Sub });
 
-            this.lblCard3Sub.Font      = new System.Drawing.Font("Segoe UI", 8F);
-            this.lblCard3Sub.ForeColor = System.Drawing.Color.FromArgb(148, 163, 184);
-            this.lblCard3Sub.Location  = new System.Drawing.Point(14, 116);
-            this.lblCard3Sub.Name      = "lblCard3Sub";
-            this.lblCard3Sub.Size      = new System.Drawing.Size(190, 16);
-            this.lblCard3Sub.Text      = "task đã qua deadline";
+            panelCard3Top.BackColor = System.Drawing.Color.FromArgb(220, 38, 38);
+            panelCard3Top.Dock = DockStyle.Top;
+            panelCard3Top.Height = 5;
+            panelCard3Top.Name = "panelCard3Top";
 
-            // ── Card 4: Hoàn thành tháng này ─────────────────────
-            this.panelCard4.BackColor   = System.Drawing.Color.White;
-            this.panelCard4.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panelCard4.Name        = "panelCard4";
-            this.panelCard4.Size        = cardSize;
-            this.panelCard4.Margin      = cardMargin;
-            this.panelCard4.Controls.AddRange(new System.Windows.Forms.Control[]
-            { this.panelCard4Top, this.lblCard4Icon, this.lblCard4Title, this.lblStatDone, this.lblCard4Sub });
+            lblCard3Icon.Font = new System.Drawing.Font("Segoe UI Emoji", 22F);
+            lblCard3Icon.ForeColor = System.Drawing.Color.FromArgb(220, 38, 38);
+            lblCard3Icon.Location = new Point(14, 14);
+            lblCard3Icon.Name = "lblCard3Icon";
+            lblCard3Icon.Size = new System.Drawing.Size(44, 40);
+            lblCard3Icon.Text = "⚠️";
+            lblCard3Icon.TextAlign = ContentAlignment.MiddleCenter;
 
-            this.panelCard4Top.BackColor = System.Drawing.Color.FromArgb(124, 58, 237);
-            this.panelCard4Top.Dock      = System.Windows.Forms.DockStyle.Top;
-            this.panelCard4Top.Height    = 5;
-            this.panelCard4Top.Name      = "panelCard4Top";
+            lblCard3Title.Font = new System.Drawing.Font("Segoe UI", 8F, System.Drawing.FontStyle.Bold);
+            lblCard3Title.ForeColor = UIHelper.ColorMuted;
+            lblCard3Title.Location = new Point(64, 22);
+            lblCard3Title.Name = "lblCard3Title";
+            lblCard3Title.Size = new System.Drawing.Size(162, 16);
+            lblCard3Title.Text = "QUÁ HẠN";
 
-            this.lblCard4Icon.Font      = new System.Drawing.Font("Segoe UI Emoji", 22F);
-            this.lblCard4Icon.ForeColor = System.Drawing.Color.FromArgb(124, 58, 237);
-            this.lblCard4Icon.Location  = new System.Drawing.Point(14, 14);
-            this.lblCard4Icon.Name      = "lblCard4Icon";
-            this.lblCard4Icon.Size      = new System.Drawing.Size(44, 40);
-            this.lblCard4Icon.Text      = "🎯";
-            this.lblCard4Icon.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            lblStatOverdue.Font = new System.Drawing.Font("Segoe UI", 32F, System.Drawing.FontStyle.Bold);
+            lblStatOverdue.ForeColor = System.Drawing.Color.FromArgb(220, 38, 38);
+            lblStatOverdue.Location = new Point(14, 58);
+            lblStatOverdue.Name = "lblStatOverdue";
+            lblStatOverdue.Size = new System.Drawing.Size(200, 60);
+            lblStatOverdue.Text = "...";
 
-            this.lblCard4Title.Font      = new System.Drawing.Font("Segoe UI", 8F, System.Drawing.FontStyle.Bold);
-            this.lblCard4Title.ForeColor = System.Drawing.Color.FromArgb(100, 116, 139);
-            this.lblCard4Title.Location  = new System.Drawing.Point(64, 20);
-            this.lblCard4Title.Name      = "lblCard4Title";
-            this.lblCard4Title.Size      = new System.Drawing.Size(150, 16);
-            this.lblCard4Title.Text      = "XONG THÁNG NÀY";
+            lblCard3Sub.Font = UIHelper.FontSmall;
+            lblCard3Sub.ForeColor = UIHelper.ColorSubtitle;
+            lblCard3Sub.Location = new Point(14, 122);
+            lblCard3Sub.Name = "lblCard3Sub";
+            lblCard3Sub.Size = new System.Drawing.Size(200, 16);
+            lblCard3Sub.Text = "task đã qua deadline";
 
-            this.lblStatDone.Font      = new System.Drawing.Font("Segoe UI", 32F, System.Drawing.FontStyle.Bold);
-            this.lblStatDone.ForeColor = System.Drawing.Color.FromArgb(124, 58, 237);
-            this.lblStatDone.Location  = new System.Drawing.Point(14, 56);
-            this.lblStatDone.Name      = "lblStatDone";
-            this.lblStatDone.Size      = new System.Drawing.Size(190, 56);
-            this.lblStatDone.Text      = "...";
+            // ════════════════════════════════════════════════════
+            // Card 4 — Hoàn thành tháng này (Purple)
+            // ════════════════════════════════════════════════════
+            panelCard4.BackColor = System.Drawing.Color.White;
+            panelCard4.BorderStyle = BorderStyle.FixedSingle;
+            panelCard4.Cursor = Cursors.Hand;
+            panelCard4.Name = "panelCard4";
+            panelCard4.Size = cardSize;
+            panelCard4.Margin = cardMargin;
+            panelCard4.Controls.AddRange(new Control[]
+            { panelCard4Top, lblCard4Icon, lblCard4Title, lblStatDone, lblCard4Sub });
 
-            this.lblCard4Sub.Font      = new System.Drawing.Font("Segoe UI", 8F);
-            this.lblCard4Sub.ForeColor = System.Drawing.Color.FromArgb(148, 163, 184);
-            this.lblCard4Sub.Location  = new System.Drawing.Point(14, 116);
-            this.lblCard4Sub.Name      = "lblCard4Sub";
-            this.lblCard4Sub.Size      = new System.Drawing.Size(190, 16);
-            this.lblCard4Sub.Text      = $"task hoàn thành T{DateTime.Now.Month}";
+            panelCard4Top.BackColor = System.Drawing.Color.FromArgb(124, 58, 237);
+            panelCard4Top.Dock = DockStyle.Top;
+            panelCard4Top.Height = 5;
+            panelCard4Top.Name = "panelCard4Top";
 
-            // ── lblNote ──────────────────────────────────────────
-            this.lblNote.Font      = new System.Drawing.Font("Segoe UI", 9F);
-            this.lblNote.ForeColor = System.Drawing.Color.FromArgb(148, 163, 184);
-            this.lblNote.Dock      = System.Windows.Forms.DockStyle.Bottom;
-            this.lblNote.Name      = "lblNote";
-            this.lblNote.Size      = new System.Drawing.Size(900, 28);
-            this.lblNote.Padding   = new System.Windows.Forms.Padding(30, 0, 0, 8);
-            this.lblNote.Text      = "ℹ️  Đang tải số liệu...";
+            lblCard4Icon.Font = new System.Drawing.Font("Segoe UI Emoji", 22F);
+            lblCard4Icon.ForeColor = System.Drawing.Color.FromArgb(124, 58, 237);
+            lblCard4Icon.Location = new Point(14, 14);
+            lblCard4Icon.Name = "lblCard4Icon";
+            lblCard4Icon.Size = new System.Drawing.Size(44, 40);
+            lblCard4Icon.Text = "🎯";
+            lblCard4Icon.TextAlign = ContentAlignment.MiddleCenter;
 
-            // ── frmHome ──────────────────────────────────────────
+            lblCard4Title.Font = new System.Drawing.Font("Segoe UI", 8F, System.Drawing.FontStyle.Bold);
+            lblCard4Title.ForeColor = UIHelper.ColorMuted;
+            lblCard4Title.Location = new Point(64, 22);
+            lblCard4Title.Name = "lblCard4Title";
+            lblCard4Title.Size = new System.Drawing.Size(162, 16);
+            lblCard4Title.Text = "XONG THÁNG NÀY";
+
+            lblStatDone.Font = new System.Drawing.Font("Segoe UI", 32F, System.Drawing.FontStyle.Bold);
+            lblStatDone.ForeColor = System.Drawing.Color.FromArgb(124, 58, 237);
+            lblStatDone.Location = new Point(14, 58);
+            lblStatDone.Name = "lblStatDone";
+            lblStatDone.Size = new System.Drawing.Size(200, 60);
+            lblStatDone.Text = "...";
+
+            lblCard4Sub.Font = UIHelper.FontSmall;
+            lblCard4Sub.ForeColor = UIHelper.ColorSubtitle;
+            lblCard4Sub.Location = new Point(14, 122);
+            lblCard4Sub.Name = "lblCard4Sub";
+            lblCard4Sub.Size = new System.Drawing.Size(200, 16);
+            lblCard4Sub.Text = $"task hoàn thành T{DateTime.Now.Month}";
+
+            // ════════════════════════════════════════════════════
+            // Form
+            // ════════════════════════════════════════════════════
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode       = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor           = System.Drawing.Color.FromArgb(241, 245, 249);
-            this.ClientSize          = new System.Drawing.Size(960, 540);
-            this.Controls.Add(this.panelStats);
-            this.Controls.Add(this.panelHeader);
-            this.Font          = new System.Drawing.Font("Segoe UI", 9.5F);
-            this.Name          = "frmHome";
-            this.Text          = "Trang chủ";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
+            this.AutoScaleMode = AutoScaleMode.Font;
+            this.BackColor = UIHelper.ColorBackground;
+            this.ClientSize = new System.Drawing.Size(1000, 580);
+            this.Font = UIHelper.FontBase;
+            this.Name = "frmHome";
+            this.Text = "🏠  Trang chủ";
+            this.StartPosition = FormStartPosition.Manual;
 
-            this.panelHeader.ResumeLayout(false);
-            this.panelStats.ResumeLayout(false);
-            this.panelStats.PerformLayout();
+            // Thứ tự Add: Fill trước → Top
+            this.Controls.Add(panelBody);    // DockStyle.Fill
+            this.Controls.Add(panelHeader);  // DockStyle.Top
+
+            panelHeader.ResumeLayout(false);
+            panelBody.ResumeLayout(false);
+            panelWelcome.ResumeLayout(false);
+            panelStats.ResumeLayout(false);
             this.ResumeLayout(false);
         }
 
-        // ── Field declarations ────────────────────────────────────
-        private System.Windows.Forms.Panel panelHeader;
-        private System.Windows.Forms.Label lblGreeting;
-        private System.Windows.Forms.Label lblRole;
-        private System.Windows.Forms.Label lblLastLogin;
-        private System.Windows.Forms.Panel panelAccentLine;
-        private System.Windows.Forms.Panel panelStats;
-        private System.Windows.Forms.FlowLayoutPanel flowCards; // FIX: responsive cards
+        // ── Field declarations ────────────────────────────────────────────────
+        private Panel panelHeader;
+        private Panel panelAccentLine;
+        private Label lblHeader;
+        private Panel panelBody;
+        private Panel panelWelcome;
+        private Label lblGreeting;
+        private Label lblRole;
+        private Label lblLastLogin;
+        private Panel panelStats;
+        private FlowLayoutPanel flowCards;
+        private Label lblNote;
 
-        private System.Windows.Forms.Panel panelCard1;
-        private System.Windows.Forms.Panel panelCard1Top;
-        private System.Windows.Forms.Label lblCard1Icon;
-        private System.Windows.Forms.Label lblCard1Title;
-        private System.Windows.Forms.Label lblStatProjects;
-        private System.Windows.Forms.Label lblCard1Sub;
+        private Panel panelCard1;
+        private Panel panelCard1Top;
+        private Label lblCard1Icon;
+        private Label lblCard1Title;
+        private Label lblStatProjects;
+        private Label lblCard1Sub;
 
-        private System.Windows.Forms.Panel panelCard2;
-        private System.Windows.Forms.Panel panelCard2Top;
-        private System.Windows.Forms.Label lblCard2Icon;
-        private System.Windows.Forms.Label lblCard2Title;
-        private System.Windows.Forms.Label lblStatTasks;
-        private System.Windows.Forms.Label lblCard2Sub;
+        private Panel panelCard2;
+        private Panel panelCard2Top;
+        private Label lblCard2Icon;
+        private Label lblCard2Title;
+        private Label lblStatTasks;
+        private Label lblCard2Sub;
 
-        private System.Windows.Forms.Panel panelCard3;
-        private System.Windows.Forms.Panel panelCard3Top;
-        private System.Windows.Forms.Label lblCard3Icon;
-        private System.Windows.Forms.Label lblCard3Title;
-        private System.Windows.Forms.Label lblStatOverdue;
-        private System.Windows.Forms.Label lblCard3Sub;
+        private Panel panelCard3;
+        private Panel panelCard3Top;
+        private Label lblCard3Icon;
+        private Label lblCard3Title;
+        private Label lblStatOverdue;
+        private Label lblCard3Sub;
 
-        private System.Windows.Forms.Panel panelCard4;
-        private System.Windows.Forms.Panel panelCard4Top;
-        private System.Windows.Forms.Label lblCard4Icon;
-        private System.Windows.Forms.Label lblCard4Title;
-        private System.Windows.Forms.Label lblStatDone;
-        private System.Windows.Forms.Label lblCard4Sub;
-
-        private System.Windows.Forms.Label lblNote;
+        private Panel panelCard4;
+        private Panel panelCard4Top;
+        private Label lblCard4Icon;
+        private Label lblCard4Title;
+        private Label lblStatDone;
+        private Label lblCard4Sub;
     }
 }

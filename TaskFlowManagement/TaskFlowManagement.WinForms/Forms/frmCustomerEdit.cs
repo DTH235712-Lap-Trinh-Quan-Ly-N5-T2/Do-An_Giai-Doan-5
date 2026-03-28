@@ -1,9 +1,10 @@
 using TaskFlowManagement.Core.Entities;
 using TaskFlowManagement.Core.Interfaces;
+using TaskFlowManagement.WinForms.Common;
 
 namespace TaskFlowManagement.WinForms.Forms
 {
-    public partial class frmCustomerEdit : Form
+    public partial class frmCustomerEdit : BaseForm
     {
         private readonly ICustomerRepository _customerRepo;
         private readonly Customer? _editCustomer;

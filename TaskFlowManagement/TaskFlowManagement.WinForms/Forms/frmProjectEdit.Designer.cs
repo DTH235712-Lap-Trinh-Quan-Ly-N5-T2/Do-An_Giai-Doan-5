@@ -1,8 +1,11 @@
+using TaskFlowManagement.WinForms.Common;
+
 namespace TaskFlowManagement.WinForms.Forms
 {
-    partial class frmProjectEdit
+    partial class frmProjectEdit   // BaseForm declared in frmProjectEdit.cs
     {
         private System.ComponentModel.IContainer components = null;
+
         protected override void Dispose(bool disposing)
         {
             if (disposing && components != null) components.Dispose();
@@ -11,186 +14,185 @@ namespace TaskFlowManagement.WinForms.Forms
 
         private void InitializeComponent()
         {
-            this.panelHeader     = new Panel();
-            this.lblTitleForm    = new Label();
-            this.panelAccentLine = new Panel();
-            this.panelBody       = new Panel();
-            this.panelFooter     = new Panel();
-            this.panelFooterLine = new Panel();
-            this.lblError        = new Label();
-            this.btnSave         = new Button();
-            this.btnCancel       = new Button();
+            // ── Instantiation ─────────────────────────────────────────────────
+            panelHeader = new Panel();
+            lblTitleForm = new Label();
+            panelAccentLine = new Panel();
+            panelBody = new Panel();
+            panelFooter = new Panel();
+            panelFooterLine = new Panel();
+            lblError = new Label();
+            btnSave = new Button();
+            btnCancel = new Button();
 
-            // Body controls
-            this.lblName     = new Label(); this.txtName        = new TextBox();
-            this.lblCustomer = new Label(); this.cboCustomer    = new ComboBox();
-            this.lblOwner    = new Label(); this.cboOwner       = new ComboBox();
-            this.lblStart    = new Label(); this.dtpStartDate   = new DateTimePicker();
-            this.lblDeadline = new Label(); this.dtpDeadline    = new DateTimePicker();
-            this.chkDeadline = new CheckBox();
-            this.lblBudget   = new Label(); this.txtBudget      = new TextBox();
-            this.lblPriority = new Label(); this.cboPriority    = new ComboBox();
-            this.lblDesc     = new Label(); this.txtDescription = new TextBox();
+            lblName = new Label(); txtName = new TextBox();
+            lblCustomer = new Label(); cboCustomer = new ComboBox();
+            lblOwner = new Label(); cboOwner = new ComboBox();
+            lblStart = new Label(); dtpStartDate = new DateTimePicker();
+            lblDeadline = new Label(); dtpDeadline = new DateTimePicker();
+            chkDeadline = new CheckBox();
+            lblBudget = new Label(); txtBudget = new TextBox();
+            lblPriority = new Label(); cboPriority = new ComboBox();
+            lblDesc = new Label(); txtDescription = new TextBox();
 
-            this.panelHeader.SuspendLayout();
-            this.panelBody.SuspendLayout();
-            this.panelFooter.SuspendLayout();
+            panelHeader.SuspendLayout();
+            panelBody.SuspendLayout();
+            panelFooter.SuspendLayout();
             this.SuspendLayout();
 
-            // ── Header ───────────────────────────────────────
-            this.panelHeader.BackColor = System.Drawing.Color.FromArgb(15, 23, 42);
-            this.panelHeader.Dock = DockStyle.Top;
-            this.panelHeader.Height = 64;
-            this.panelHeader.Controls.Add(this.lblTitleForm);
-            this.panelHeader.Controls.Add(this.panelAccentLine);
+            // ════════════════════════════════════════════════════
+            // panelHeader — Dark banner
+            // ════════════════════════════════════════════════════
+            panelHeader.BackColor = UIHelper.ColorHeaderBg;
+            panelHeader.Dock = DockStyle.Top;
+            panelHeader.Height = 64;
+            panelHeader.Name = "panelHeader";
+            panelHeader.Controls.Add(lblTitleForm);
+            panelHeader.Controls.Add(panelAccentLine);
 
-            this.lblTitleForm.AutoSize = false;
-            this.lblTitleForm.Dock = DockStyle.Fill;
-            this.lblTitleForm.Font = new System.Drawing.Font("Segoe UI", 13F, System.Drawing.FontStyle.Bold);
-            this.lblTitleForm.ForeColor = System.Drawing.Color.White;
-            this.lblTitleForm.Padding = new Padding(18, 0, 0, 4);
-            this.lblTitleForm.Text = "➕  Tạo dự án mới";
-            this.lblTitleForm.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            lblTitleForm.AutoSize = false;
+            lblTitleForm.Dock = DockStyle.Fill;
+            lblTitleForm.Font = new System.Drawing.Font("Segoe UI", 13F, System.Drawing.FontStyle.Bold);
+            lblTitleForm.ForeColor = UIHelper.ColorHeaderFg;
+            lblTitleForm.Name = "lblTitleForm";
+            lblTitleForm.Padding = new Padding(18, 0, 0, 4);
+            lblTitleForm.Text = "➕  Tạo dự án mới";
+            lblTitleForm.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
 
-            this.panelAccentLine.BackColor = System.Drawing.Color.FromArgb(37, 99, 235);
-            this.panelAccentLine.Dock = DockStyle.Bottom;
-            this.panelAccentLine.Height = 4;
+            panelAccentLine.BackColor = System.Drawing.Color.FromArgb(37, 99, 235);
+            panelAccentLine.Dock = DockStyle.Bottom;
+            panelAccentLine.Height = 4;
+            panelAccentLine.Name = "panelAccentLine";
 
-            // ── Body ─────────────────────────────────────────
-            // Spacing: label Y mỗi field cách 60px (compact hơn vì nhiều field)
-            this.panelBody.BackColor = System.Drawing.Color.FromArgb(241, 245, 249);
-            this.panelBody.Dock = DockStyle.Fill;
-            this.panelBody.AutoScroll = true;
-            this.panelBody.Controls.AddRange(new Control[] {
+            // ════════════════════════════════════════════════════
+            // panelBody — Form fields
+            // ════════════════════════════════════════════════════
+            panelBody.BackColor = UIHelper.ColorBackground;
+            panelBody.Dock = DockStyle.Fill;
+            panelBody.AutoScroll = true;
+            panelBody.Name = "panelBody";
+            panelBody.Controls.AddRange(new Control[]
+            {
                 lblName, txtName, lblCustomer, cboCustomer, lblOwner, cboOwner,
                 lblStart, dtpStartDate, lblDeadline, chkDeadline, dtpDeadline,
                 lblBudget, txtBudget, lblPriority, cboPriority,
                 lblDesc, txtDescription
             });
 
-            int y = 14; int gap = 56; int lx = 20; int tw = 400;
+            // ── Layout constants ──────────────────────────────────────────────
+            int y = 14, gap = 56, lx = 20, tw = 400;
 
-            // Tên dự án
+            // ── Tên dự án ─────────────────────────────────────────────────────
             SetLabel(lblName, "TÊN DỰ ÁN *", lx, y);
             SetTextBox(txtName, "Nhập tên dự án...", lx, y + 18, tw, 1);
 
-            // Khách hàng
+            // ── Khách hàng ────────────────────────────────────────────────────
             y += gap;
             SetLabel(lblCustomer, "KHÁCH HÀNG", lx, y);
-            this.cboCustomer.BackColor = System.Drawing.Color.White;
-            this.cboCustomer.DropDownStyle = ComboBoxStyle.DropDownList;
-            this.cboCustomer.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.cboCustomer.Location = new System.Drawing.Point(lx, y + 18);
-            this.cboCustomer.Size = new System.Drawing.Size(tw, 30);
-            this.cboCustomer.TabIndex = 2;
+            StyleCombo(cboCustomer, lx, y + 18, tw, 2);
 
-            // Quản lý (PM)
+            // ── Quản lý (PM) ──────────────────────────────────────────────────
             y += gap;
             SetLabel(lblOwner, "QUẢN LÝ DỰ ÁN (PM) *", lx, y);
-            this.cboOwner.BackColor = System.Drawing.Color.White;
-            this.cboOwner.DropDownStyle = ComboBoxStyle.DropDownList;
-            this.cboOwner.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.cboOwner.Location = new System.Drawing.Point(lx, y + 18);
-            this.cboOwner.Size = new System.Drawing.Size(tw, 30);
-            this.cboOwner.TabIndex = 3;
+            StyleCombo(cboOwner, lx, y + 18, tw, 3);
 
-            // Ngày bắt đầu + Deadline (cùng hàng)
+            // ── Ngày bắt đầu + Deadline (cùng hàng) ──────────────────────────
             y += gap;
             SetLabel(lblStart, "NGÀY BẮT ĐẦU", lx, y);
-            this.dtpStartDate.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.dtpStartDate.Format = DateTimePickerFormat.Short;
-            this.dtpStartDate.Location = new System.Drawing.Point(lx, y + 18);
-            this.dtpStartDate.Size = new System.Drawing.Size(190, 30);
-            this.dtpStartDate.TabIndex = 4;
+            dtpStartDate.Font = UIHelper.FontBase;
+            dtpStartDate.Format = DateTimePickerFormat.Short;
+            dtpStartDate.Location = new System.Drawing.Point(lx, y + 18);
+            dtpStartDate.Name = "dtpStartDate";
+            dtpStartDate.Size = new System.Drawing.Size(190, 30);
+            dtpStartDate.TabIndex = 4;
 
             SetLabel(lblDeadline, "DEADLINE", lx + 210, y);
-            this.chkDeadline.AutoSize = true;
-            this.chkDeadline.Font = new System.Drawing.Font("Segoe UI", 8F);
-            this.chkDeadline.ForeColor = System.Drawing.Color.FromArgb(100, 116, 139);
-            this.chkDeadline.Location = new System.Drawing.Point(lx + 290, y + 1);
-            this.chkDeadline.Text = "Có deadline";
-            this.chkDeadline.CheckedChanged += chkDeadline_CheckedChanged;
 
-            this.dtpDeadline.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.dtpDeadline.Format = DateTimePickerFormat.Short;
-            this.dtpDeadline.Location = new System.Drawing.Point(lx + 210, y + 18);
-            this.dtpDeadline.Size = new System.Drawing.Size(190, 30);
-            this.dtpDeadline.TabIndex = 5;
-            this.dtpDeadline.Enabled = false;
+            chkDeadline.AutoSize = true;
+            chkDeadline.Font = UIHelper.FontSmall;
+            chkDeadline.ForeColor = UIHelper.ColorMuted;
+            chkDeadline.Location = new System.Drawing.Point(lx + 290, y + 1);
+            chkDeadline.Name = "chkDeadline";
+            chkDeadline.Text = "Có deadline";
+            chkDeadline.CheckedChanged += chkDeadline_CheckedChanged;
 
-            // Ngân sách + Priority (cùng hàng)
+            dtpDeadline.Font = UIHelper.FontBase;
+            dtpDeadline.Format = DateTimePickerFormat.Short;
+            dtpDeadline.Location = new System.Drawing.Point(lx + 210, y + 18);
+            dtpDeadline.Name = "dtpDeadline";
+            dtpDeadline.Size = new System.Drawing.Size(190, 30);
+            dtpDeadline.TabIndex = 5;
+            dtpDeadline.Enabled = false;
+
+            // ── Ngân sách + Priority (cùng hàng) ─────────────────────────────
             y += gap;
             SetLabel(lblBudget, "NGÂN SÁCH (VNĐ)", lx, y);
             SetTextBox(txtBudget, "VD: 500000000", lx, y + 18, 190, 6);
 
             SetLabel(lblPriority, "ĐỘ ƯU TIÊN", lx + 210, y);
-            this.cboPriority.BackColor = System.Drawing.Color.White;
-            this.cboPriority.DropDownStyle = ComboBoxStyle.DropDownList;
-            this.cboPriority.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.cboPriority.Location = new System.Drawing.Point(lx + 210, y + 18);
-            this.cboPriority.Size = new System.Drawing.Size(190, 30);
-            this.cboPriority.TabIndex = 7;
+            StyleCombo(cboPriority, lx + 210, y + 18, 190, 7);
 
-            // Mô tả
+            // ── Mô tả ─────────────────────────────────────────────────────────
             y += gap;
             SetLabel(lblDesc, "MÔ TẢ (tùy chọn)", lx, y);
-            this.txtDescription.BackColor = System.Drawing.Color.White;
-            this.txtDescription.BorderStyle = BorderStyle.FixedSingle;
-            this.txtDescription.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.txtDescription.Location = new System.Drawing.Point(lx, y + 18);
-            this.txtDescription.Multiline = true;
-            this.txtDescription.PlaceholderText = "Mô tả chi tiết dự án...";
-            this.txtDescription.Size = new System.Drawing.Size(tw, 60);
-            this.txtDescription.TabIndex = 8;
 
-            // ── Footer ───────────────────────────────────────
-            this.panelFooter.BackColor = System.Drawing.Color.White;
-            this.panelFooter.Dock = DockStyle.Bottom;
-            this.panelFooter.Height = 76;
-            this.panelFooter.Controls.AddRange(new Control[] { panelFooterLine, lblError, btnSave, btnCancel });
+            txtDescription.BackColor = System.Drawing.Color.White;
+            txtDescription.BorderStyle = BorderStyle.FixedSingle;
+            txtDescription.Font = UIHelper.FontBase;
+            txtDescription.Location = new System.Drawing.Point(lx, y + 18);
+            txtDescription.Multiline = true;
+            txtDescription.Name = "txtDescription";
+            txtDescription.PlaceholderText = "Mô tả chi tiết dự án...";
+            txtDescription.Size = new System.Drawing.Size(tw, 60);
+            txtDescription.TabIndex = 8;
 
-            this.panelFooterLine.BackColor = System.Drawing.Color.FromArgb(226, 232, 240);
-            this.panelFooterLine.Dock = DockStyle.Top;
-            this.panelFooterLine.Height = 1;
+            // ════════════════════════════════════════════════════
+            // panelFooter — Buttons
+            // ════════════════════════════════════════════════════
+            panelFooter.BackColor = System.Drawing.Color.White;
+            panelFooter.Dock = DockStyle.Bottom;
+            panelFooter.Height = 76;
+            panelFooter.Name = "panelFooter";
+            panelFooter.Controls.AddRange(new Control[]
+            { panelFooterLine, lblError, btnSave, btnCancel });
 
-            this.lblError.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.lblError.ForeColor = System.Drawing.Color.FromArgb(220, 38, 38);
-            this.lblError.Location = new System.Drawing.Point(16, 6);
-            this.lblError.Size = new System.Drawing.Size(420, 18);
+            panelFooterLine.BackColor = System.Drawing.Color.FromArgb(226, 232, 240);
+            panelFooterLine.Dock = DockStyle.Top;
+            panelFooterLine.Height = 1;
+            panelFooterLine.Name = "panelFooterLine";
 
-            this.btnSave.BackColor = System.Drawing.Color.FromArgb(37, 99, 235);
-            this.btnSave.Cursor = Cursors.Hand;
-            this.btnSave.FlatAppearance.BorderSize = 0;
-            this.btnSave.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(29, 78, 216);
-            this.btnSave.FlatStyle = FlatStyle.Flat;
-            this.btnSave.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            this.btnSave.ForeColor = System.Drawing.Color.White;
-            this.btnSave.Location = new System.Drawing.Point(16, 28);
-            this.btnSave.Size = new System.Drawing.Size(270, 40);
-            this.btnSave.Text = "💾  Lưu";
-            this.btnSave.Click += btnSave_Click;
+            // lblError
+            lblError.Font = UIHelper.FontSmall;
+            lblError.ForeColor = System.Drawing.Color.FromArgb(220, 38, 38);
+            lblError.Location = new System.Drawing.Point(16, 6);
+            lblError.Name = "lblError";
+            lblError.Size = new System.Drawing.Size(420, 18);
 
-            this.btnCancel.BackColor = System.Drawing.Color.FromArgb(241, 245, 249);
-            this.btnCancel.Cursor = Cursors.Hand;
-            this.btnCancel.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(203, 213, 225);
-            this.btnCancel.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(226, 232, 240);
-            this.btnCancel.FlatStyle = FlatStyle.Flat;
-            this.btnCancel.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.btnCancel.ForeColor = System.Drawing.Color.FromArgb(71, 85, 105);
-            this.btnCancel.Location = new System.Drawing.Point(296, 28);
-            this.btnCancel.Size = new System.Drawing.Size(130, 40);
-            this.btnCancel.Text = "Hủy";
-            this.btnCancel.Click += btnCancel_Click;
+            // btnSave — Primary (SỬA: trước hard-code BackColor thủ công)
+            UIHelper.StyleButton(btnSave, UIHelper.ButtonVariant.Primary);
+            btnSave.Location = new System.Drawing.Point(16, 28);
+            btnSave.Name = "btnSave";
+            btnSave.Size = new System.Drawing.Size(270, 40);
+            btnSave.Text = "💾  Lưu dự án";
+            btnSave.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            btnSave.Click += btnSave_Click;
 
-            // ── Form ─────────────────────────────────────────
+            // btnCancel — Secondary (SỬA: trước hard-code BackColor thủ công)
+            UIHelper.StyleButton(btnCancel, UIHelper.ButtonVariant.Secondary);
+            btnCancel.Location = new System.Drawing.Point(296, 28);
+            btnCancel.Name = "btnCancel";
+            btnCancel.Size = new System.Drawing.Size(130, 40);
+            btnCancel.Text = "Hủy";
+            btnCancel.Font = UIHelper.FontBase;
+            btnCancel.Click += btnCancel_Click;
+
+            // ════════════════════════════════════════════════════
+            // Form
+            // ════════════════════════════════════════════════════
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(460, 570);
-            this.Controls.Add(this.panelBody);
-            this.Controls.Add(this.panelFooter);
-            this.Controls.Add(this.panelHeader);
-            this.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            this.ClientSize = new System.Drawing.Size(460, 590);
+            this.Font = UIHelper.FontBase;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
@@ -198,36 +200,58 @@ namespace TaskFlowManagement.WinForms.Forms
             this.StartPosition = FormStartPosition.CenterParent;
             this.Text = "Dự án";
 
-            this.panelHeader.ResumeLayout(false);
-            this.panelBody.ResumeLayout(false);
-            this.panelBody.PerformLayout();
-            this.panelFooter.ResumeLayout(false);
+            // Thứ tự Add: Fill → Bottom → Top
+            this.Controls.Add(panelBody);
+            this.Controls.Add(panelFooter);
+            this.Controls.Add(panelHeader);
+
+            panelHeader.ResumeLayout(false);
+            panelBody.ResumeLayout(false);
+            panelBody.PerformLayout();
+            panelFooter.ResumeLayout(false);
             this.ResumeLayout(false);
         }
 
-        // Helpers tạo Label/TextBox đồng bộ style
-        private void SetLabel(Label lbl, string text, int x, int y)
+        // ── Private layout helpers ────────────────────────────────────────────
+
+        /// <summary>Tạo Label field chuẩn — dùng UIHelper thay vì hard-code.</summary>
+        private static void SetLabel(Label lbl, string text, int x, int y)
         {
             lbl.AutoSize = true;
             lbl.Font = new System.Drawing.Font("Segoe UI", 8.5F, System.Drawing.FontStyle.Bold);
-            lbl.ForeColor = System.Drawing.Color.FromArgb(71, 85, 105);
+            lbl.ForeColor = UIHelper.ColorDark;
             lbl.Location = new System.Drawing.Point(x, y);
             lbl.Text = text;
         }
-        private void SetTextBox(TextBox txt, string placeholder, int x, int y, int w, int tabIdx)
+
+        /// <summary>Tạo TextBox field chuẩn — dùng UIHelper thay vì hard-code.</summary>
+        private static void SetTextBox(TextBox txt, string placeholder, int x, int y, int w, int tabIdx)
         {
             txt.BackColor = System.Drawing.Color.White;
             txt.BorderStyle = BorderStyle.FixedSingle;
-            txt.Font = new System.Drawing.Font("Segoe UI", 10F);
+            txt.Font = UIHelper.FontBase;
             txt.Location = new System.Drawing.Point(x, y);
             txt.PlaceholderText = placeholder;
             txt.Size = new System.Drawing.Size(w, 30);
             txt.TabIndex = tabIdx;
         }
 
+        /// <summary>Tạo ComboBox field chuẩn.</summary>
+        private static void StyleCombo(ComboBox cbo, int x, int y, int w, int tabIdx)
+        {
+            cbo.BackColor = System.Drawing.Color.White;
+            cbo.DropDownStyle = ComboBoxStyle.DropDownList;
+            cbo.Font = UIHelper.FontBase;
+            cbo.Location = new System.Drawing.Point(x, y);
+            cbo.Size = new System.Drawing.Size(w, 30);
+            cbo.TabIndex = tabIdx;
+        }
+
+        // ── Field declarations ────────────────────────────────────────────────
         private Panel panelHeader, panelAccentLine, panelBody, panelFooter, panelFooterLine;
         private Label lblTitleForm, lblError;
-        private Label lblName, lblCustomer, lblOwner, lblStart, lblDeadline, lblBudget, lblPriority, lblDesc;
+        private Label lblName, lblCustomer, lblOwner, lblStart, lblDeadline;
+        private Label lblBudget, lblPriority, lblDesc;
         private TextBox txtName, txtBudget, txtDescription;
         private ComboBox cboCustomer, cboOwner, cboPriority;
         private DateTimePicker dtpStartDate, dtpDeadline;

@@ -1,8 +1,11 @@
+using TaskFlowManagement.WinForms.Common;
+
 namespace TaskFlowManagement.WinForms.Forms
 {
-    partial class frmCustomers
+    partial class frmCustomers   // BaseForm declared in frmCustomers.cs
     {
         private System.ComponentModel.IContainer components = null;
+
         protected override void Dispose(bool disposing)
         {
             if (disposing && components != null) components.Dispose();
@@ -11,242 +14,194 @@ namespace TaskFlowManagement.WinForms.Forms
 
         private void InitializeComponent()
         {
-            this.panelTop      = new System.Windows.Forms.Panel();
-            this.lblHeader     = new System.Windows.Forms.Label();
-            this.panelFilter   = new System.Windows.Forms.Panel();
-            this.txtSearch     = new System.Windows.Forms.TextBox();
-            this.btnRefresh    = new System.Windows.Forms.Button();
-            this.panelToolbar  = new System.Windows.Forms.Panel();
-            this.btnAdd        = new System.Windows.Forms.Button();
-            this.btnEdit       = new System.Windows.Forms.Button();
-            this.btnDelete     = new System.Windows.Forms.Button();
-            this.btnDetail     = new System.Windows.Forms.Button();
-            this.lblCount      = new System.Windows.Forms.Label();
-            this.dgvCustomers  = new System.Windows.Forms.DataGridView();
-            this.panelStatus   = new System.Windows.Forms.Panel();
-            this.lblStatus     = new System.Windows.Forms.Label();
+            // ── Instantiation ─────────────────────────────────────────────────
+            panelTop = new Panel();
+            panelAccentLine = new Panel();
+            lblHeader = new Label();
 
-            this.colCustId      = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colCompany     = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colContact     = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colCustEmail   = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colCustPhone   = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colAddress     = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colCreatedAt   = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            panelFilter = new Panel();
+            txtSearch = new TextBox();
+            btnRefresh = new Button();
 
-            this.panelTop.SuspendLayout();
-            this.panelFilter.SuspendLayout();
-            this.panelToolbar.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)this.dgvCustomers).BeginInit();
+            panelToolbar = new Panel();
+            btnAdd = new Button();
+            btnEdit = new Button();
+            btnDelete = new Button();
+            btnDetail = new Button();
+            lblCount = new Label();
+
+            dgvCustomers = new DataGridView();
+
+            panelStatus = new Panel();
+            lblStatus = new Label();
+
+            colCustId = new DataGridViewTextBoxColumn();
+            colCompany = new DataGridViewTextBoxColumn();
+            colContact = new DataGridViewTextBoxColumn();
+            colCustEmail = new DataGridViewTextBoxColumn();
+            colCustPhone = new DataGridViewTextBoxColumn();
+            colAddress = new DataGridViewTextBoxColumn();
+            colCreatedAt = new DataGridViewTextBoxColumn();
+
+            panelTop.SuspendLayout();
+            panelFilter.SuspendLayout();
+            panelToolbar.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)dgvCustomers).BeginInit();
             this.SuspendLayout();
 
-            // panelTop
-            this.panelTop.BackColor = System.Drawing.Color.FromArgb(15, 23, 42);
-            this.panelTop.Dock      = System.Windows.Forms.DockStyle.Top;
-            this.panelTop.Height    = 52;
-            this.panelTop.Name      = "panelTop";
-            this.panelTop.Controls.Add(this.lblHeader);
+            // ════════════════════════════════════════════════════
+            // panelTop — Dark header + accent line
+            // SỬA: height 52→58, thêm panelAccentLine
+            // ════════════════════════════════════════════════════
+            panelTop.BackColor = UIHelper.ColorHeaderBg;
+            panelTop.Dock = DockStyle.Top;
+            panelTop.Height = 58;
+            panelTop.Name = "panelTop";
+            panelTop.Controls.Add(lblHeader);
+            panelTop.Controls.Add(panelAccentLine);
 
-            this.lblHeader.AutoSize  = false;
-            this.lblHeader.Dock      = System.Windows.Forms.DockStyle.Fill;
-            this.lblHeader.Font      = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Bold);
-            this.lblHeader.ForeColor = System.Drawing.Color.White;
-            this.lblHeader.Name      = "lblHeader";
-            this.lblHeader.Text      = "  🏢  Quản lý Khách hàng";
-            this.lblHeader.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            panelAccentLine.BackColor = System.Drawing.Color.FromArgb(37, 99, 235);
+            panelAccentLine.Dock = DockStyle.Bottom;
+            panelAccentLine.Height = 4;
+            panelAccentLine.Name = "panelAccentLine";
 
-            // panelFilter
-            this.panelFilter.BackColor = System.Drawing.Color.FromArgb(248, 250, 252);
-            this.panelFilter.Dock      = System.Windows.Forms.DockStyle.Top;
-            this.panelFilter.Height    = 46;
-            this.panelFilter.Name      = "panelFilter";
-            this.panelFilter.Controls.AddRange(new System.Windows.Forms.Control[]
-            { this.txtSearch, this.btnRefresh });
+            lblHeader.AutoSize = false;
+            lblHeader.Dock = DockStyle.Fill;
+            lblHeader.Font = UIHelper.FontHeaderLarge;
+            lblHeader.ForeColor = UIHelper.ColorHeaderFg;
+            lblHeader.Name = "lblHeader";
+            lblHeader.Padding = new Padding(16, 0, 0, 4);
+            lblHeader.Text = "🏢  Quản lý Khách hàng";
+            lblHeader.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
 
-            this.txtSearch.BorderStyle    = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.txtSearch.Font           = new System.Drawing.Font("Segoe UI", 9.5F);
-            this.txtSearch.Location       = new System.Drawing.Point(12, 10);
-            this.txtSearch.Name           = "txtSearch";
-            this.txtSearch.PlaceholderText = "🔍  Tìm theo tên công ty, liên hệ, email...";
-            this.txtSearch.Size           = new System.Drawing.Size(340, 26);
-            this.txtSearch.TextChanged   += new System.EventHandler(this.txtSearch_TextChanged);
+            // ════════════════════════════════════════════════════
+            // panelFilter — Search + Refresh
+            // SỬA: hard-code #F8FAFC → UIHelper.ColorBackground
+            // ════════════════════════════════════════════════════
+            panelFilter.BackColor = UIHelper.ColorBackground;
+            panelFilter.Dock = DockStyle.Top;
+            panelFilter.Height = 46;
+            panelFilter.Name = "panelFilter";
+            panelFilter.Controls.AddRange(new Control[] { txtSearch, btnRefresh });
 
-            this.btnRefresh.BackColor                  = System.Drawing.Color.FromArgb(241, 245, 249);
-            this.btnRefresh.FlatStyle                  = System.Windows.Forms.FlatStyle.Flat;
-            this.btnRefresh.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(203, 213, 225);
-            this.btnRefresh.Font                       = new System.Drawing.Font("Segoe UI Emoji", 10F);
-            this.btnRefresh.Location                   = new System.Drawing.Point(362, 10);
-            this.btnRefresh.Name                       = "btnRefresh";
-            this.btnRefresh.Size                       = new System.Drawing.Size(36, 26);
-            this.btnRefresh.Text                       = "🔄";
-            this.btnRefresh.Cursor                     = System.Windows.Forms.Cursors.Hand;
-            this.btnRefresh.Click                     += new System.EventHandler(this.btnRefresh_Click);
+            txtSearch.Font = UIHelper.FontSmall;
+            txtSearch.Location = new System.Drawing.Point(12, 10);
+            txtSearch.Name = "txtSearch";
+            txtSearch.PlaceholderText = "🔍  Tìm theo tên công ty, liên hệ, email...";
+            txtSearch.Size = new System.Drawing.Size(340, 26);
+            txtSearch.TextChanged += txtSearch_TextChanged;
 
-            // panelToolbar
-            this.panelToolbar.BackColor = System.Drawing.Color.White;
-            this.panelToolbar.Dock      = System.Windows.Forms.DockStyle.Top;
-            this.panelToolbar.Height    = 44;
-            this.panelToolbar.Name      = "panelToolbar";
-            this.panelToolbar.Controls.AddRange(new System.Windows.Forms.Control[]
-            { this.btnAdd, this.btnEdit, this.btnDelete, this.btnDetail, this.lblCount });
+            // SỬA: icon-only 36px → text đầy đủ với UIHelper
+            UIHelper.StyleToolButton(btnRefresh, "🔄  Làm mới", UIHelper.ButtonVariant.Secondary, 362, 10, 100, 26);
+            btnRefresh.Name = "btnRefresh";
+            btnRefresh.Click += btnRefresh_Click;
 
-            // ── btnAdd ───────────────────────────────────────────
-            this.btnAdd.BackColor                 = System.Drawing.Color.FromArgb(37, 99, 235);
-            this.btnAdd.Cursor                    = System.Windows.Forms.Cursors.Hand;
-            this.btnAdd.FlatStyle                 = System.Windows.Forms.FlatStyle.Flat;
-            this.btnAdd.FlatAppearance.BorderSize = 0;
-            this.btnAdd.Font                      = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-            this.btnAdd.ForeColor                 = System.Drawing.Color.White;
-            this.btnAdd.Location                  = new System.Drawing.Point(12, 7);
-            this.btnAdd.Name                      = "btnAdd";
-            this.btnAdd.Size                      = new System.Drawing.Size(130, 30);
-            this.btnAdd.Text                      = "➕  Thêm mới";
+            // ════════════════════════════════════════════════════
+            // panelToolbar — CRUD buttons
+            // SỬA: White bg → UIHelper.ColorSurface; tất cả btn hard-code → UIHelper
+            // ════════════════════════════════════════════════════
+            panelToolbar.BackColor = UIHelper.ColorSurface;
+            panelToolbar.Dock = DockStyle.Top;
+            panelToolbar.Height = 52;
+            panelToolbar.Name = "panelToolbar";
+            panelToolbar.Controls.AddRange(new Control[]
+            { btnAdd, btnEdit, btnDelete, btnDetail, lblCount });
 
-            // ── btnEdit ──────────────────────────────────────────
-            this.btnEdit.BackColor                 = System.Drawing.Color.FromArgb(5, 150, 105);
-            this.btnEdit.Cursor                    = System.Windows.Forms.Cursors.Hand;
-            this.btnEdit.FlatStyle                 = System.Windows.Forms.FlatStyle.Flat;
-            this.btnEdit.FlatAppearance.BorderSize = 0;
-            this.btnEdit.Font                      = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-            this.btnEdit.ForeColor                 = System.Drawing.Color.White;
-            this.btnEdit.Location                  = new System.Drawing.Point(152, 7);
-            this.btnEdit.Name                      = "btnEdit";
-            this.btnEdit.Size                      = new System.Drawing.Size(100, 30);
-            this.btnEdit.Text                      = "✏️  Sửa";
+            int bx = 12, by = 9, bg = 6, bh = 34;
+            UIHelper.StyleToolButton(btnAdd, "➕  Thêm mới", UIHelper.ButtonVariant.Primary, bx, by, 120, bh); bx += 120 + bg;
+            UIHelper.StyleToolButton(btnEdit, "✏️  Sửa", UIHelper.ButtonVariant.Success, bx, by, 90, bh); bx += 90 + bg;
+            UIHelper.StyleToolButton(btnDelete, "🗑️  Xóa", UIHelper.ButtonVariant.Danger, bx, by, 80, bh); bx += 80 + bg;
+            UIHelper.StyleToolButton(btnDetail, "📋  Xem dự án", UIHelper.ButtonVariant.Slate, bx, by, 120, bh); bx += 120 + bg;
 
-            // ── btnDelete ────────────────────────────────────────
-            this.btnDelete.BackColor                 = System.Drawing.Color.FromArgb(220, 38, 38);
-            this.btnDelete.Cursor                    = System.Windows.Forms.Cursors.Hand;
-            this.btnDelete.FlatStyle                 = System.Windows.Forms.FlatStyle.Flat;
-            this.btnDelete.FlatAppearance.BorderSize = 0;
-            this.btnDelete.Font                      = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-            this.btnDelete.ForeColor                 = System.Drawing.Color.White;
-            this.btnDelete.Location                  = new System.Drawing.Point(262, 7);
-            this.btnDelete.Name                      = "btnDelete";
-            this.btnDelete.Size                      = new System.Drawing.Size(100, 30);
-            this.btnDelete.Text                      = "🗑️  Xóa";
+            btnAdd.Name = "btnAdd"; btnAdd.Click += btnAdd_Click;
+            btnEdit.Name = "btnEdit"; btnEdit.Click += btnEdit_Click;
+            btnDelete.Name = "btnDelete"; btnDelete.Click += btnDelete_Click;
+            btnDetail.Name = "btnDetail"; btnDetail.Click += btnDetail_Click;
 
-            // ── btnDetail ────────────────────────────────────────
-            this.btnDetail.BackColor                 = System.Drawing.Color.FromArgb(124, 58, 237);
-            this.btnDetail.Cursor                    = System.Windows.Forms.Cursors.Hand;
-            this.btnDetail.FlatStyle                 = System.Windows.Forms.FlatStyle.Flat;
-            this.btnDetail.FlatAppearance.BorderSize = 0;
-            this.btnDetail.Font                      = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-            this.btnDetail.ForeColor                 = System.Drawing.Color.White;
-            this.btnDetail.Location                  = new System.Drawing.Point(372, 7);
-            this.btnDetail.Name                      = "btnDetail";
-            this.btnDetail.Size                      = new System.Drawing.Size(130, 30);
-            this.btnDetail.Text                      = "📋  Xem dự án";
+            btnEdit.Enabled = btnDelete.Enabled = btnDetail.Enabled = false;
 
-            this.btnAdd.Click    += new System.EventHandler(this.btnAdd_Click);
-            this.btnEdit.Click   += new System.EventHandler(this.btnEdit_Click);
-            this.btnDelete.Click += new System.EventHandler(this.btnDelete_Click);
-            this.btnDetail.Click += new System.EventHandler(this.btnDetail_Click);
-            this.btnEdit.Enabled   = false;
-            this.btnDelete.Enabled = false;
-            this.btnDetail.Enabled = false;
+            lblCount.AutoSize = false;
+            lblCount.Font = UIHelper.FontSmall;
+            lblCount.ForeColor = UIHelper.ColorMuted;
+            lblCount.Location = new System.Drawing.Point(bx, by);
+            lblCount.Name = "lblCount";
+            lblCount.Size = new System.Drawing.Size(180, bh);
+            lblCount.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
 
-            this.lblCount.AutoSize  = false;
-            this.lblCount.Font      = new System.Drawing.Font("Segoe UI", 9F);
-            this.lblCount.ForeColor = System.Drawing.Color.FromArgb(100, 116, 139);
-            this.lblCount.Location  = new System.Drawing.Point(516, 14);
-            this.lblCount.Name      = "lblCount";
-            this.lblCount.Size      = new System.Drawing.Size(200, 20);
-            this.lblCount.Text      = "";
+            // ════════════════════════════════════════════════════
+            // dgvCustomers — DataGridView
+            // SỬA: Toàn bộ hard-code → UIHelper.StyleDataGridView()
+            // ════════════════════════════════════════════════════
+            UIHelper.StyleDataGridView(dgvCustomers);
+            UIHelper.ApplyAlternateRowColors(dgvCustomers);
+            dgvCustomers.Dock = DockStyle.Fill;
+            dgvCustomers.Name = "dgvCustomers";
+            dgvCustomers.RowTemplate.Height = 34;
+            dgvCustomers.SelectionChanged += dgvCustomers_SelectionChanged;
+            dgvCustomers.CellDoubleClick += dgvCustomers_CellDoubleClick;
 
-            // DataGridView
-            this.dgvCustomers.AllowUserToAddRows    = false;
-            this.dgvCustomers.AllowUserToDeleteRows = false;
-            this.dgvCustomers.BackgroundColor       = System.Drawing.Color.White;
-            this.dgvCustomers.BorderStyle           = System.Windows.Forms.BorderStyle.None;
-            this.dgvCustomers.CellBorderStyle       = System.Windows.Forms.DataGridViewCellBorderStyle.SingleHorizontal;
-            this.dgvCustomers.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvCustomers.Dock                  = System.Windows.Forms.DockStyle.Fill;
-            this.dgvCustomers.Font                  = new System.Drawing.Font("Segoe UI", 9.5F);
-            this.dgvCustomers.GridColor             = System.Drawing.Color.FromArgb(241, 245, 249);
-            this.dgvCustomers.MultiSelect           = false;
-            this.dgvCustomers.Name                  = "dgvCustomers";
-            this.dgvCustomers.ReadOnly              = true;
-            this.dgvCustomers.RowHeadersVisible     = false;
-            this.dgvCustomers.SelectionMode         = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvCustomers.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(30, 41, 59);
-            this.dgvCustomers.ColumnHeadersDefaultCellStyle.ForeColor = System.Drawing.Color.White;
-            this.dgvCustomers.ColumnHeadersDefaultCellStyle.Font      = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-            this.dgvCustomers.EnableHeadersVisualStyles = false;
-            this.dgvCustomers.RowTemplate.Height    = 34;
-            this.dgvCustomers.SelectionChanged     += new System.EventHandler(this.dgvCustomers_SelectionChanged);
-            this.dgvCustomers.CellDoubleClick      += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvCustomers_CellDoubleClick);
+            colCustId.Name = "colCustId"; colCustId.HeaderText = "ID"; colCustId.Width = 45; colCustId.Visible = false;
+            colCompany.Name = "colCompany"; colCompany.HeaderText = "Tên công ty"; colCompany.Width = 220;
+            colContact.Name = "colContact"; colContact.HeaderText = "Người liên hệ"; colContact.Width = 160;
+            colCustEmail.Name = "colCustEmail"; colCustEmail.HeaderText = "Email"; colCustEmail.Width = 190;
+            colCustPhone.Name = "colCustPhone"; colCustPhone.HeaderText = "Điện thoại"; colCustPhone.Width = 120;
+            colAddress.Name = "colAddress"; colAddress.HeaderText = "Địa chỉ"; colAddress.Width = 200;
+            colCreatedAt.Name = "colCreatedAt"; colCreatedAt.HeaderText = "Ngày tạo"; colCreatedAt.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
 
-            this.colCustId.Name    = "colCustId";    this.colCustId.HeaderText    = "ID";           this.colCustId.Width    = 45; this.colCustId.Visible = false;
-            this.colCompany.Name   = "colCompany";   this.colCompany.HeaderText   = "Tên công ty";  this.colCompany.Width   = 220;
-            this.colContact.Name   = "colContact";   this.colContact.HeaderText   = "Người liên hệ"; this.colContact.Width  = 160;
-            this.colCustEmail.Name = "colCustEmail"; this.colCustEmail.HeaderText = "Email";         this.colCustEmail.Width = 190;
-            this.colCustPhone.Name = "colCustPhone"; this.colCustPhone.HeaderText = "Điện thoại";   this.colCustPhone.Width = 120;
-            this.colAddress.Name   = "colAddress";   this.colAddress.HeaderText   = "Địa chỉ";      this.colAddress.Width   = 200;
-            this.colCreatedAt.Name = "colCreatedAt"; this.colCreatedAt.HeaderText = "Ngày tạo";     this.colCreatedAt.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-
-            this.dgvCustomers.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[]
+            dgvCustomers.Columns.AddRange(new DataGridViewColumn[]
             { colCustId, colCompany, colContact, colCustEmail, colCustPhone, colAddress, colCreatedAt });
 
-            // panelStatus
-            this.panelStatus.BackColor = System.Drawing.Color.FromArgb(15, 23, 42);
-            this.panelStatus.Dock      = System.Windows.Forms.DockStyle.Bottom;
-            this.panelStatus.Height    = 28;
-            this.panelStatus.Name      = "panelStatus";
-            this.panelStatus.Controls.Add(this.lblStatus);
+            // ════════════════════════════════════════════════════
+            // panelStatus — Status bar
+            // ════════════════════════════════════════════════════
+            panelStatus.BackColor = UIHelper.ColorHeaderBg;
+            panelStatus.Dock = DockStyle.Bottom;
+            panelStatus.Height = 28;
+            panelStatus.Name = "panelStatus";
+            panelStatus.Controls.Add(lblStatus);
 
-            this.lblStatus.AutoSize  = false;
-            this.lblStatus.Dock      = System.Windows.Forms.DockStyle.Fill;
-            this.lblStatus.Font      = new System.Drawing.Font("Segoe UI", 9F);
-            this.lblStatus.ForeColor = System.Drawing.Color.FromArgb(148, 163, 184);
-            this.lblStatus.Name      = "lblStatus";
-            this.lblStatus.Padding   = new System.Windows.Forms.Padding(10, 0, 0, 0);
-            this.lblStatus.Text      = "";
-            this.lblStatus.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            lblStatus.AutoSize = false;
+            lblStatus.Dock = DockStyle.Fill;
+            lblStatus.Font = UIHelper.FontSmall;
+            lblStatus.ForeColor = UIHelper.ColorSubtitle;
+            lblStatus.Name = "lblStatus";
+            lblStatus.Padding = new Padding(12, 0, 0, 0);
+            lblStatus.Text = "";
+            lblStatus.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
 
-            // frmCustomers
+            // ════════════════════════════════════════════════════
+            // Form
+            // ════════════════════════════════════════════════════
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode       = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor           = System.Drawing.Color.White;
-            this.ClientSize          = new System.Drawing.Size(1000, 600);
-            this.Controls.Add(this.dgvCustomers);
-            this.Controls.Add(this.panelStatus);
-            this.Controls.Add(this.panelToolbar);
-            this.Controls.Add(this.panelFilter);
-            this.Controls.Add(this.panelTop);
-            this.Font          = new System.Drawing.Font("Segoe UI", 9.5F);
-            this.Name          = "frmCustomers";
-            this.Text          = "Quản lý Khách hàng";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
+            this.AutoScaleMode = AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(1000, 620);
+            this.Font = UIHelper.FontBase;
+            this.Name = "frmCustomers";
+            this.Text = "🏢  Quản lý Khách hàng";
+            this.StartPosition = FormStartPosition.Manual;
 
-            this.panelTop.ResumeLayout(false);
-            this.panelFilter.ResumeLayout(false);
-            this.panelFilter.PerformLayout();
-            this.panelToolbar.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)this.dgvCustomers).EndInit();
+            // Thứ tự Add: Fill → Bottom → Top (ngược chiều Dock)
+            this.Controls.Add(dgvCustomers);
+            this.Controls.Add(panelStatus);
+            this.Controls.Add(panelToolbar);
+            this.Controls.Add(panelFilter);
+            this.Controls.Add(panelTop);
+
+            panelTop.ResumeLayout(false);
+            panelFilter.ResumeLayout(false);
+            panelFilter.PerformLayout();
+            panelToolbar.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)dgvCustomers).EndInit();
             this.ResumeLayout(false);
         }
 
-        private System.Windows.Forms.Panel   panelTop;
-        private System.Windows.Forms.Label   lblHeader;
-        private System.Windows.Forms.Panel   panelFilter;
-        private System.Windows.Forms.TextBox txtSearch;
-        private System.Windows.Forms.Button  btnRefresh;
-        private System.Windows.Forms.Panel   panelToolbar;
-        private System.Windows.Forms.Button  btnAdd;
-        private System.Windows.Forms.Button  btnEdit;
-        private System.Windows.Forms.Button  btnDelete;
-        private System.Windows.Forms.Button  btnDetail;
-        private System.Windows.Forms.Label   lblCount;
-        private System.Windows.Forms.DataGridView dgvCustomers;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colCustId;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colCompany;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colContact;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colCustEmail;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colCustPhone;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colAddress;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colCreatedAt;
-        private System.Windows.Forms.Panel   panelStatus;
-        private System.Windows.Forms.Label   lblStatus;
+        // ── Field declarations ────────────────────────────────────────────────
+        private Panel panelTop, panelAccentLine, panelFilter, panelToolbar, panelStatus;
+        private Label lblHeader, lblCount, lblStatus;
+        private TextBox txtSearch;
+        private Button btnRefresh, btnAdd, btnEdit, btnDelete, btnDetail;
+        private DataGridView dgvCustomers;
+        private DataGridViewTextBoxColumn colCustId, colCompany, colContact;
+        private DataGridViewTextBoxColumn colCustEmail, colCustPhone, colAddress, colCreatedAt;
     }
 }

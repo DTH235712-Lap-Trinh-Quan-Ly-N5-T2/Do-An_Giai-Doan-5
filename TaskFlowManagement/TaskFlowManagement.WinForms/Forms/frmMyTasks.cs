@@ -1,3 +1,23 @@
+// ============================================================
+//  frmMyTasks.cs  (REFACTORED)
+//  TaskFlowManagement.WinForms.Forms
+//
+//  THAY ĐỔI SO VỚI PHIÊN BẢN CŨ:
+//  ─────────────────────────────────────────────────────────
+//  [UI]
+//   • Kế thừa BaseForm thay vì Form trực tiếp
+//
+//  [Dead Code đã xóa]
+//   • ApplyRowColor(DataGridViewRow, TaskItem) private static → ĐÃ XÓA
+//     Lý do: Hoàn toàn trùng lặp với UIHelper.ApplyTaskRowStyle()
+//     Thay bằng UIHelper.ApplyTaskRowStyle() trong BindGrid() để
+//     đồng bộ 100% màu sắc với frmTaskList (single source of truth).
+//
+//  [Logic giữ nguyên 100%]
+//   • OnLoad, LoadWelcomeInfo (đặt lại lblHeader trong Designer)
+//   • ApplyRolePermissions, LoadAllTabsAsync
+//   • BindGrid, btnRefresh_Click, dgv_CellDoubleClick
+// ============================================================
 using TaskFlowManagement.Core.Entities;
 using TaskFlowManagement.Core.Interfaces.Services;
 using TaskFlowManagement.WinForms.Common;
@@ -15,22 +35,19 @@ namespace TaskFlowManagement.WinForms.Forms
     /// Developer chỉ thấy tab 1.
     /// Manager/Admin thấy cả 3 tab.
     /// </summary>
-    public partial class frmMyTasks : Form
+    public partial class frmMyTasks : BaseForm
     {
-        // ────────────────────────────────────────────────────────
-        // DEPENDENCIES
-        // ────────────────────────────────────────────────────────
+        // ── Dependencies ──────────────────────────────────────────────────────
         private readonly ITaskService _taskService = null!;
-        private readonly IProjectService _projectService = null!;  // FIX: thêm field để dùng trong double-click
-        private readonly IUserService _userService = null!;   // FIX: thêm field để dùng trong double-click
+        private readonly IProjectService _projectService = null!;
+        private readonly IUserService _userService = null!;
 
-        // ────────────────────────────────────────────────────────
-        // CONSTRUCTORS
-        // ────────────────────────────────────────────────────────
+        // ── Constructors ──────────────────────────────────────────────────────
 
         /// <summary>
         /// Constructor mặc định — BẮT BUỘC để tab [Design] không lỗi.
         /// </summary>
+        [Obsolete("Dùng constructor DI(ITaskService, IProjectService, IUserService). Constructor này chỉ dành cho VS Designer.")]
         public frmMyTasks()
         {
             InitializeComponent();
@@ -38,51 +55,51 @@ namespace TaskFlowManagement.WinForms.Forms
 
         /// <summary>
         /// Constructor DI — ServiceProvider gọi cái này khi chạy thật.
-        /// FIX: Thêm IProjectService và IUserService để mở frmTaskEdit khi double-click.
-        /// Không cần dùng form.Tag nữa — inject thẳng vào constructor sạch hơn.
         /// </summary>
-        public frmMyTasks(ITaskService taskService, IProjectService projectService, IUserService userService)
+        public frmMyTasks(
+            ITaskService taskService,
+            IProjectService projectService,
+            IUserService userService)
+#pragma warning disable CS0618
             : this()
+#pragma warning restore CS0618
         {
             _taskService = taskService;
             _projectService = projectService;
             _userService = userService;
         }
 
-        // ────────────────────────────────────────────────────────
-        // FORM LOAD
-        // ────────────────────────────────────────────────────────
+        // ── Form Load ─────────────────────────────────────────────────────────
 
         protected override async void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
 
-            this.Text = $"📋 Công việc của tôi — {AppSession.FullName}";
+            // Cập nhật tiêu đề form + header banner với thông tin user thực tế
+            var title = $"📋  Công việc của tôi — {AppSession.FullName}";
+            this.Text = title;
+            lblHeader.Text = title;
             lblUser.Text = $"Đang hiển thị công việc của: {AppSession.FullName} ({AppSession.Username})";
 
             ApplyRolePermissions();
             await LoadAllTabsAsync();
         }
 
-        // ────────────────────────────────────────────────────────
-        // PHÂN QUYỀN THEO ROLE
-        // ────────────────────────────────────────────────────────
+        // ── Role permissions ──────────────────────────────────────────────────
 
+        /// <summary>Developer không thực hiện Review/Test → ẩn 2 tab đó.</summary>
         private void ApplyRolePermissions()
         {
-            // Developer không thực hiện Review/Test → ẩn 2 tab đó
             bool canReviewOrTest = AppSession.IsManager;
             tabReview.Parent = canReviewOrTest ? tabControl : null;
             tabTesting.Parent = canReviewOrTest ? tabControl : null;
         }
 
-        // ────────────────────────────────────────────────────────
-        // LOAD DỮ LIỆU CẢ 3 TAB
-        // ────────────────────────────────────────────────────────
+        // ── Load Data ─────────────────────────────────────────────────────────
 
         private async Task LoadAllTabsAsync()
         {
-            lblStatus.Text = "Đang tải...";
+            SetStatus("⏳  Đang tải...");
 
             try
             {
@@ -102,24 +119,25 @@ namespace TaskFlowManagement.WinForms.Forms
                 BindGrid(dgvTesting, tTest.Result);
 
                 // Cập nhật số lượng task lên tiêu đề tab
-                tabMyTasks.Text = $"📋 Được giao ({tMine.Result.Count})";
-                tabReview.Text = $"🔍 Review ({reviewTasks.Count})";
-                tabTesting.Text = $"🧪 Testing ({tTest.Result.Count})";
+                tabMyTasks.Text = $"📋  Được giao ({tMine.Result.Count})";
+                tabReview.Text = $"🔍  Review ({reviewTasks.Count})";
+                tabTesting.Text = $"🧪  Testing ({tTest.Result.Count})";
 
                 int total = tMine.Result.Count + reviewTasks.Count + tTest.Result.Count;
-                lblStatus.Text = $"Tổng cộng {total} công việc liên quan đến bạn.";
+                SetStatus($"Tổng cộng {total} công việc liên quan đến bạn.");
             }
             catch (Exception ex)
             {
-                lblStatus.Text = "Lỗi tải dữ liệu.";
-                MessageBox.Show("Không thể tải dữ liệu:\n" + ex.Message,
-                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("⚠  Lỗi tải dữ liệu.");
+                MessageBox.Show(
+                    "Không thể tải dữ liệu:\n" + ex.Message,
+                    "Lỗi",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
             }
         }
 
-        // ────────────────────────────────────────────────────────
-        // BIND DỮ LIỆU VÀO DATAGRIDVIEW
-        // ────────────────────────────────────────────────────────
+        // ── Grid Binding ──────────────────────────────────────────────────────
 
         private static void BindGrid(DataGridView dgv, List<TaskItem> items)
         {
@@ -141,47 +159,23 @@ namespace TaskFlowManagement.WinForms.Forms
                     $"{t.ProgressPercent}%",
                     due);
 
-                ApplyRowColor(dgv.Rows[idx], t);
+                // [REFACTOR] Dùng UIHelper.ApplyTaskRowStyle() — single source of truth
+                // Đã xóa private ApplyRowColor() bị duplicate ở đây.
+                UIHelper.ApplyTaskRowStyle(
+                    dgv.Rows[idx],
+                    t.Status?.Name,
+                    t.IsCompleted,
+                    t.DueDate);
             }
         }
 
-        private static void ApplyRowColor(DataGridViewRow row, TaskItem task)
-        {
-            if (task.DueDate.HasValue && task.DueDate.Value < DateTime.UtcNow && !task.IsCompleted)
-            {
-                row.DefaultCellStyle.ForeColor = Color.FromArgb(185, 28, 28);
-                return;
-            }
-
-            row.DefaultCellStyle.ForeColor = task.Status?.Name switch
-            {
-                "CLOSED" => Color.FromArgb(5, 150, 105),
-                "RESOLVED" => Color.FromArgb(22, 163, 74),
-                "FAILED" => Color.FromArgb(220, 38, 38),
-                "IN-PROGRESS" => Color.FromArgb(37, 99, 235),
-                "REVIEW-1" or "REVIEW-2" => Color.FromArgb(180, 83, 9),
-                "IN-TEST" => Color.FromArgb(109, 40, 217),
-                _ => Color.FromArgb(30, 41, 59),
-            };
-        }
-
-        // ────────────────────────────────────────────────────────
-        // NÚT LÀM MỚI
-        // ────────────────────────────────────────────────────────
+        // ── Events ────────────────────────────────────────────────────────────
 
         private async void btnRefresh_Click(object sender, EventArgs e)
-        {
-            await LoadAllTabsAsync();
-        }
-
-        // ────────────────────────────────────────────────────────
-        // MỞ FORM SỬA KHI DOUBLE-CLICK
-        // ────────────────────────────────────────────────────────
+            => await LoadAllTabsAsync();
 
         /// <summary>
         /// Double-click vào bất kỳ DataGridView nào → mở frmTaskEdit để xem/sửa chi tiết.
-        /// FIX: Dùng _projectService và _userService đã inject vào constructor,
-        ///      không cần truyền qua form.Tag nữa → sạch hơn, không còn lỗi thiếu tham số.
         /// </summary>
         private void dgv_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
@@ -193,10 +187,17 @@ namespace TaskFlowManagement.WinForms.Forms
 
             int taskId = (int)cell;
 
-            // FIX: truyền đủ 4 tham số theo constructor mới của frmTaskEdit
             using var dlg = new frmTaskEdit(_taskService, _projectService, _userService, taskId);
             if (dlg.ShowDialog(this) == DialogResult.OK)
-                _ = LoadAllTabsAsync(); // Reload sau khi sửa xong
+                _ = LoadAllTabsAsync();
+        }
+
+        // ── Helpers ───────────────────────────────────────────────────────────
+
+        private void SetStatus(string msg)
+        {
+            if (lblStatus != null && !lblStatus.IsDisposed)
+                lblStatus.Text = msg;
         }
     }
 }
