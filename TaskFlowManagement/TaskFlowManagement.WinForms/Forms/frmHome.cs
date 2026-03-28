@@ -8,17 +8,15 @@ namespace TaskFlowManagement.WinForms.Forms
     /// Hiển thị: tên user, vai trò, thống kê nhanh (số liệu thật từ DB).
     /// Là MDI Child đầu tiên tự động mở khi vào frmMain.
     /// </summary>
-    public partial class frmHome : Form
+    public partial class frmHome : BaseForm
     {
         private readonly IProjectService _projectService;
-        private readonly ITaskService    _taskService;
+        private readonly ITaskService _taskService;
 
-        // BUG FIX: Inject IProjectService + ITaskService để load số liệu thật
-        // Trước đây dùng new frmHome() nên không inject được → luôn hiện "—"
         public frmHome(IProjectService projectService, ITaskService taskService)
         {
             _projectService = projectService;
-            _taskService    = taskService;
+            _taskService = taskService;
             InitializeComponent();
             LoadWelcomeInfo();
         }
@@ -29,15 +27,17 @@ namespace TaskFlowManagement.WinForms.Forms
             var greeting = hour < 12 ? "Chào buổi sáng" :
                            hour < 18 ? "Chào buổi chiều" : "Chào buổi tối";
 
-            lblGreeting.Text  = $"{greeting}, {AppSession.FullName}! 👋";
-            lblRole.Text      = $"Vai trò: {string.Join(", ", AppSession.Roles)}";
+            // Cập nhật cả lblHeader ở dark banner lẫn lblGreeting trong body
+            lblHeader.Text = $"🏠  Trang chủ — {AppSession.FullName}";
+            lblGreeting.Text = $"{greeting}, {AppSession.FullName}! 👋";
+            lblRole.Text = $"Vai trò: {string.Join(", ", AppSession.Roles)}";
             lblLastLogin.Text = $"Đăng nhập lúc: {DateTime.Now:HH:mm  dd/MM/yyyy}";
 
-            // Hiện placeholder trước, sau đó load async
+            // Placeholder trước khi load async
             lblStatProjects.Text = "...";
-            lblStatTasks.Text    = "...";
-            lblStatOverdue.Text  = "...";
-            lblStatDone.Text     = "...";
+            lblStatTasks.Text = "...";
+            lblStatOverdue.Text = "...";
+            lblStatDone.Text = "...";
         }
 
         protected override async void OnLoad(EventArgs e)
@@ -51,7 +51,7 @@ namespace TaskFlowManagement.WinForms.Forms
             try
             {
                 bool isManager = AppSession.IsManager;
-                int  userId    = AppSession.UserId;
+                int userId = AppSession.UserId;
 
                 // Dự án đang chạy (InProgress)
                 var projects = await _projectService.GetProjectsForUserAsync(userId, isManager);
@@ -75,7 +75,7 @@ namespace TaskFlowManagement.WinForms.Forms
                     t.IsCompleted &&
                     t.CompletedAt.HasValue &&
                     t.CompletedAt.Value.Month == thisMonth.Month &&
-                    t.CompletedAt.Value.Year  == thisMonth.Year);
+                    t.CompletedAt.Value.Year == thisMonth.Year);
                 lblStatDone.Text = doneThisMonth.ToString();
 
                 lblNote.Text = $"ℹ️  Cập nhật lúc {DateTime.Now:HH:mm}  —  {projects.Count} dự án tổng";
@@ -83,10 +83,10 @@ namespace TaskFlowManagement.WinForms.Forms
             catch
             {
                 lblStatProjects.Text = "—";
-                lblStatTasks.Text    = "—";
-                lblStatOverdue.Text  = "—";
-                lblStatDone.Text     = "—";
-                lblNote.Text         = "ℹ️  Không thể tải số liệu. Kiểm tra kết nối database.";
+                lblStatTasks.Text = "—";
+                lblStatOverdue.Text = "—";
+                lblStatDone.Text = "—";
+                lblNote.Text = "ℹ️  Không thể tải số liệu. Kiểm tra kết nối database.";
             }
         }
     }

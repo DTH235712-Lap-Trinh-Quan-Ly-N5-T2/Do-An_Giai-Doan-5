@@ -7,7 +7,7 @@ namespace TaskFlowManagement.WinForms.Forms
     /// <summary>
     /// Quản lý thành viên dự án – thêm developer, gán vai trò, xóa (soft delete).
     /// </summary>
-    public partial class frmProjectMembers : Form
+    public partial class frmProjectMembers : BaseForm
     {
         private readonly IProjectService _projectService;
         private readonly IUserService _userService;
@@ -15,17 +15,24 @@ namespace TaskFlowManagement.WinForms.Forms
         private List<ProjectMember> _members = new();
         private List<User> _availableUsers = new();
 
-        public frmProjectMembers(IProjectService projectService, IUserService userService, Project project)
+        public frmProjectMembers(
+            IProjectService projectService,
+            IUserService userService,
+            Project project)
         {
             _projectService = projectService;
-            _userService    = userService;
-            _project        = project;
+            _userService = userService;
+            _project = project;
             InitializeComponent();
-            lblTitle.Text = $"👥  Thành viên — {_project.Name}";
+
+            // Cập nhật tiêu đề header với tên dự án thực tế
+            var title = $"👥  Thành viên — {_project.Name}";
+            this.Text = title;
+            lblTitle.Text = title;
 
             // Developer chỉ xem, không thêm/xóa
             bool canEdit = AppSession.IsManager;
-            panelAdd.Visible  = canEdit;
+            panelAdd.Visible = canEdit;
             btnRemove.Visible = canEdit;
         }
 
@@ -40,7 +47,8 @@ namespace TaskFlowManagement.WinForms.Forms
             cboProjectRole.SelectedIndex = 0;
         }
 
-        // Load thành viên hiện tại
+        // ── Load Data ─────────────────────────────────────────────────────────
+
         private async Task LoadMembersAsync()
         {
             _members = await _projectService.GetMembersAsync(_project.Id);
@@ -57,7 +65,6 @@ namespace TaskFlowManagement.WinForms.Forms
             lblCount.Text = $"{_members.Count} thành viên";
         }
 
-        // Load user chưa trong dự án để thêm
         private async Task LoadAvailableUsersAsync()
         {
             var allActive = await _userService.GetAllActiveUsersAsync();
@@ -70,11 +77,17 @@ namespace TaskFlowManagement.WinForms.Forms
             if (cboUser.Items.Count > 0) cboUser.SelectedIndex = 0;
         }
 
-        // Thêm thành viên
+        // ── Events ────────────────────────────────────────────────────────────
+
         private async void btnAddMember_Click(object sender, EventArgs e)
         {
             if (cboUser.SelectedIndex < 0)
-            { MessageBox.Show("Vui lòng chọn người dùng.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; }
+            {
+                MessageBox.Show(
+                    "Vui lòng chọn người dùng.",
+                    "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
 
             var user = _availableUsers[cboUser.SelectedIndex];
             var role = cboProjectRole.SelectedItem?.ToString() ?? "Developer";
@@ -91,7 +104,6 @@ namespace TaskFlowManagement.WinForms.Forms
             }
         }
 
-        // Xóa thành viên (soft delete)
         private async void btnRemove_Click(object sender, EventArgs e)
         {
             if (dgvMembers.SelectedRows.Count == 0) return;
@@ -100,10 +112,10 @@ namespace TaskFlowManagement.WinForms.Forms
             if (member == null) return;
 
             if (MessageBox.Show(
-                $"Xóa \"{member.User?.FullName}\" khỏi dự án?\n\nLịch sử tham gia vẫn được lưu lại.",
-                "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
+                    $"Xóa \"{member.User?.FullName}\" khỏi dự án?\n\nLịch sử tham gia vẫn được lưu lại.",
+                    "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
 
-            var (ok, msg) = await _projectService.RemoveMemberAsync(_project.Id, userId);
+            var (ok, _) = await _projectService.RemoveMemberAsync(_project.Id, userId);
             if (ok)
             {
                 await LoadMembersAsync();
@@ -112,6 +124,6 @@ namespace TaskFlowManagement.WinForms.Forms
         }
 
         private void btnClose_Click(object sender, EventArgs e)
-        { this.Close(); }
+            => this.Close();
     }
 }

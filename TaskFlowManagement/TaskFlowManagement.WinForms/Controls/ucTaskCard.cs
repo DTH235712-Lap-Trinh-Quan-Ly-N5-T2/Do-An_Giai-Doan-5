@@ -1,4 +1,6 @@
 using TaskFlowManagement.Core.Entities;
+using TaskFlowManagement.WinForms.Common;
+using TaskFlowManagement.Core.Constants;
 
 namespace TaskFlowManagement.WinForms.Controls
 {
@@ -18,6 +20,7 @@ namespace TaskFlowManagement.WinForms.Controls
     {
         private int _taskId;
         private int _currentStatusId;
+        public int TaskId => _taskId;
 
         public event EventHandler<StatusChangedEventArgs>? StatusChanged;
         public event EventHandler<int>? CardDoubleClicked;
@@ -27,6 +30,36 @@ namespace TaskFlowManagement.WinForms.Controls
             InitializeComponent();
             WireEvents();
             WireUpDoubleClick();
+
+            this.MouseMove += UcTaskCard_MouseMove;
+        }
+
+        private bool _isDragging;
+        private Point _dragStartPoint;
+
+        private void UcTaskCard_MouseMove(object? sender, MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Left) return;
+            if (_isDragging) return;
+
+            // Chỉ bắt đầu drag khi di chuyển đủ xa (tránh click nhầm)
+            var delta = new Point(
+                Math.Abs(e.X - _dragStartPoint.X),
+                Math.Abs(e.Y - _dragStartPoint.Y));
+
+            if (delta.X < SystemInformation.DragSize.Width &&
+                delta.Y < SystemInformation.DragSize.Height) return;
+
+            _isDragging = true;
+            DoDragDrop(_taskId, DragDropEffects.Move);
+            _isDragging = false;
+        }
+
+        protected override void OnMouseDown(MouseEventArgs e)
+        {
+            base.OnMouseDown(e);
+            if (e.Button == MouseButtons.Left)
+                _dragStartPoint = e.Location;
         }
 
         public void Bind(TaskItem task)
@@ -36,19 +69,23 @@ namespace TaskFlowManagement.WinForms.Controls
             _taskId = task.Id;
             _currentStatusId = task.StatusId;
 
-            lblTitle.Text = string.IsNullOrWhiteSpace(task.Title) ? "(Không có tiêu đề)" : task.Title.Trim();
+            lblTitle.Text = string.IsNullOrWhiteSpace(task.Title)
+                ? "(Không có tiêu đề)"
+                : task.Title.Trim();
 
             string? assigneeText = task.AssignedTo?.FullName;
             if (string.IsNullOrWhiteSpace(assigneeText))
-            {
-                assigneeText = task.AssignedToId.HasValue ? $"User #{task.AssignedToId.Value}" : "Chưa phân công";
-            }
+                assigneeText = task.AssignedToId.HasValue
+                    ? $"User #{task.AssignedToId.Value}"
+                    : "Chưa phân công";
             lblAssignee.Text = $"Assign: {assigneeText}";
 
-            string priorityName = task.Priority?.Name ?? MapPriorityName(task.PriorityId);
+            string priorityName = task.Priority?.Name
+                ?? WorkflowConstants.GetPriorityName(task.PriorityId);
             lblPriority.Text = $"Priority: {priorityName}";
             lblPriority.ForeColor = GetPriorityColor(priorityName);
-            lblExactStatus.Text = $"Status: {MapStatusName(_currentStatusId)}";
+
+            lblExactStatus.Text = $"Status: {WorkflowConstants.GetStatusName(_currentStatusId)}"; // ← Chỉ giữ dòng này
 
             UpdateMenuItemState();
         }
@@ -116,44 +153,21 @@ namespace TaskFlowManagement.WinForms.Controls
             miClosed.Enabled = _currentStatusId != 10;
         }
 
-        private static string MapPriorityName(int priorityId)
-        {
-            return priorityId switch
+        private static Color GetPriorityColor(string priorityName) =>
+            priorityName.Trim().ToUpperInvariant() switch
             {
-                3 => "High",
-                2 => "Medium",
-                1 => "Low",
-                _ => "Unknown"
+                "CRITICAL" => UIHelper.ColorDanger,    // đỏ đậm
+                "HIGH" => UIHelper.ColorDanger,
+                "MEDIUM" => UIHelper.ColorWarning,
+                "LOW" => UIHelper.ColorSuccess,
+                _ => UIHelper.ColorMuted
             };
-        }
 
-        private static Color GetPriorityColor(string priorityName)
+        public void UpdateBoundStatus(int newStatusId)
         {
-            return priorityName.Trim().ToUpperInvariant() switch
-            {
-                "HIGH" => Color.FromArgb(220, 38, 38),
-                "MEDIUM" => Color.FromArgb(217, 119, 6),
-                "LOW" => Color.FromArgb(22, 163, 74),
-                _ => Color.FromArgb(107, 114, 128)
-            };
-        }
-
-        private static string MapStatusName(int statusId)
-        {
-            return statusId switch
-            {
-                1 => "CREATED",
-                2 => "ASSIGNED",
-                3 => "IN-PROGRESS",
-                4 => "FAILED",
-                5 => "REVIEW-1",
-                6 => "REVIEW-2",
-                7 => "APPROVED",
-                8 => "IN-TEST",
-                9 => "RESOLVED",
-                10 => "CLOSED",
-                _ => "UNKNOWN"
-            };  
+            _currentStatusId = newStatusId;
+            lblExactStatus.Text = $"Status: {WorkflowConstants.GetStatusName(newStatusId)}";
+            UpdateMenuItemState();
         }
     }
 }

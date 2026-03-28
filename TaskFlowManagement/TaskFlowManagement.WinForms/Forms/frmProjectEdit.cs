@@ -10,7 +10,7 @@ namespace TaskFlowManagement.WinForms.Forms
     /// Thêm mới: nhập tên, khách hàng, PM, ngày, deadline, ngân sách, priority.
     /// Sửa: load data hiện tại vào form, cho phép chỉnh sửa.
     /// </summary>
-    public partial class frmProjectEdit : Form
+    public partial class frmProjectEdit : BaseForm
     {
         private readonly IProjectService _projectService;
         private readonly IUserService _userService;
@@ -21,14 +21,17 @@ namespace TaskFlowManagement.WinForms.Forms
         private List<Customer> _customers = new();
         private List<User> _managers = new();
 
-        public frmProjectEdit(IProjectService projectService, IUserService userService,
-            ICustomerRepository customerRepo, Project? editProject)
+        public frmProjectEdit(
+            IProjectService projectService,
+            IUserService userService,
+            ICustomerRepository customerRepo,
+            Project? editProject)
         {
             _projectService = projectService;
-            _userService    = userService;
-            _customerRepo   = customerRepo;
-            _editProject    = editProject;
-            _isEdit         = editProject != null;
+            _userService = userService;
+            _customerRepo = customerRepo;
+            _editProject = editProject;
+            _isEdit = editProject != null;
             InitializeComponent();
         }
 
@@ -67,17 +70,19 @@ namespace TaskFlowManagement.WinForms.Forms
         /// <summary>Load dữ liệu dự án hiện tại vào form khi chế độ sửa.</summary>
         private void LoadEditData()
         {
-            this.Text         = "Sửa thông tin dự án";
+            this.Text = "Sửa thông tin dự án";
             lblTitleForm.Text = "✏️  Sửa thông tin dự án";
 
-            txtName.Text        = _editProject!.Name;
+            txtName.Text = _editProject!.Name;
             txtDescription.Text = _editProject.Description ?? "";
-            dtpStartDate.Value  = _editProject.StartDate.ToDateTime(TimeOnly.MinValue);
+            dtpStartDate.Value = _editProject.StartDate.ToDateTime(TimeOnly.MinValue);
+
             if (_editProject.PlannedEndDate.HasValue)
             {
                 chkDeadline.Checked = true;
-                dtpDeadline.Value   = _editProject.PlannedEndDate.Value.ToDateTime(TimeOnly.MinValue);
+                dtpDeadline.Value = _editProject.PlannedEndDate.Value.ToDateTime(TimeOnly.MinValue);
             }
+
             txtBudget.Text = _editProject.Budget > 0 ? _editProject.Budget.ToString("0") : "";
 
             // Chọn khách hàng trong dropdown
@@ -100,14 +105,12 @@ namespace TaskFlowManagement.WinForms.Forms
         {
             lblError.Text = "";
 
-            // ── Validate ──────────────────────────────────────
             if (string.IsNullOrWhiteSpace(txtName.Text))
             { lblError.Text = "⚠  Tên dự án không được để trống."; txtName.Focus(); return; }
 
             if (cboOwner.SelectedIndex < 0)
             { lblError.Text = "⚠  Vui lòng chọn người quản lý."; return; }
 
-            // Validate deadline phải sau ngày bắt đầu
             if (chkDeadline.Checked && dtpDeadline.Value.Date <= dtpStartDate.Value.Date)
             {
                 lblError.Text = "⚠  Deadline phải sau ngày bắt đầu.";
@@ -122,7 +125,6 @@ namespace TaskFlowManagement.WinForms.Forms
                     ? _customers[cboCustomer.SelectedIndex - 1].Id : null;
                 int ownerId = _managers[cboOwner.SelectedIndex].Id;
 
-                // Parse ngân sách (bỏ dấu phân cách)
                 decimal budget = 0;
                 if (!string.IsNullOrWhiteSpace(txtBudget.Text))
                     decimal.TryParse(txtBudget.Text.Replace(",", "").Replace(".", ""), out budget);
@@ -132,14 +134,14 @@ namespace TaskFlowManagement.WinForms.Forms
 
                 if (_isEdit)
                 {
-                    _editProject!.Name          = txtName.Text.Trim();
-                    _editProject.Description    = string.IsNullOrWhiteSpace(txtDescription.Text) ? null : txtDescription.Text.Trim();
-                    _editProject.CustomerId     = customerId;
-                    _editProject.OwnerId        = ownerId;
-                    _editProject.StartDate      = DateOnly.FromDateTime(dtpStartDate.Value);
+                    _editProject!.Name = txtName.Text.Trim();
+                    _editProject.Description = string.IsNullOrWhiteSpace(txtDescription.Text) ? null : txtDescription.Text.Trim();
+                    _editProject.CustomerId = customerId;
+                    _editProject.OwnerId = ownerId;
+                    _editProject.StartDate = DateOnly.FromDateTime(dtpStartDate.Value);
                     _editProject.PlannedEndDate = deadline;
-                    _editProject.Budget         = budget;
-                    _editProject.Priority       = (byte)(cboPriority.SelectedIndex + 1);
+                    _editProject.Budget = budget;
+                    _editProject.Priority = (byte)(cboPriority.SelectedIndex + 1);
 
                     var (ok, msg) = await _projectService.UpdateProjectAsync(_editProject);
                     SetLoading(false);
@@ -150,15 +152,15 @@ namespace TaskFlowManagement.WinForms.Forms
                 {
                     var project = new Project
                     {
-                        Name           = txtName.Text.Trim(),
-                        Description    = string.IsNullOrWhiteSpace(txtDescription.Text) ? null : txtDescription.Text.Trim(),
-                        CustomerId     = customerId,
-                        OwnerId        = ownerId,
-                        StartDate      = DateOnly.FromDateTime(dtpStartDate.Value),
+                        Name = txtName.Text.Trim(),
+                        Description = string.IsNullOrWhiteSpace(txtDescription.Text) ? null : txtDescription.Text.Trim(),
+                        CustomerId = customerId,
+                        OwnerId = ownerId,
+                        StartDate = DateOnly.FromDateTime(dtpStartDate.Value),
                         PlannedEndDate = deadline,
-                        Budget         = budget,
-                        Priority       = (byte)(cboPriority.SelectedIndex + 1),
-                        Status         = "NotStarted"
+                        Budget = budget,
+                        Priority = (byte)(cboPriority.SelectedIndex + 1),
+                        Status = "NotStarted"
                     };
                     var (ok, msg) = await _projectService.CreateProjectAsync(project);
                     SetLoading(false);
@@ -181,6 +183,6 @@ namespace TaskFlowManagement.WinForms.Forms
         { dtpDeadline.Enabled = chkDeadline.Checked; }
 
         private void SetLoading(bool loading)
-        { btnSave.Enabled = !loading; btnSave.Text = loading ? "Đang lưu..." : "💾  Lưu"; }
+        { btnSave.Enabled = !loading; btnSave.Text = loading ? "⏳  Đang lưu..." : "💾  Lưu dự án"; }
     }
 }

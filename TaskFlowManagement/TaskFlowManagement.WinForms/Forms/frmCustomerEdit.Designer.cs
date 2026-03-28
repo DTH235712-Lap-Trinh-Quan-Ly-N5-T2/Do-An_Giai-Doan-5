@@ -1,3 +1,5 @@
+using TaskFlowManagement.WinForms.Common;
+
 namespace TaskFlowManagement.WinForms.Forms
 {
     partial class frmCustomerEdit
@@ -180,34 +182,19 @@ namespace TaskFlowManagement.WinForms.Forms
             this.lblError.Text      = "";
 
             // btnSave
-            this.btnSave.BackColor                         = System.Drawing.Color.FromArgb(37, 99, 235);
-            this.btnSave.Cursor                            = System.Windows.Forms.Cursors.Hand;
-            this.btnSave.FlatStyle                         = System.Windows.Forms.FlatStyle.Flat;
-            this.btnSave.FlatAppearance.BorderSize         = 0;
-            this.btnSave.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(29, 78, 216);
-            this.btnSave.Font                              = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            this.btnSave.ForeColor                         = System.Drawing.Color.White;
-            this.btnSave.Location                          = new System.Drawing.Point(16, 28);
-            this.btnSave.Name                              = "btnSave";
-            this.btnSave.Size                              = new System.Drawing.Size(230, 40);
-            this.btnSave.Text                              = "💾  Lưu";
-            this.btnSave.UseVisualStyleBackColor           = false;
-            this.btnSave.Click                            += new System.EventHandler(this.btnSave_Click);
+            UIHelper.StyleButton(this.btnSave, UIHelper.ButtonVariant.Primary);
+            this.btnSave.Location = new System.Drawing.Point(16, 28);
+            this.btnSave.Size = new System.Drawing.Size(270, 40);
+            this.btnSave.Text = "💾  Lưu";
+            this.btnSave.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.btnSave.Click += btnSave_Click;
 
             // btnCancel
-            this.btnCancel.BackColor                         = System.Drawing.Color.FromArgb(241, 245, 249);
-            this.btnCancel.Cursor                            = System.Windows.Forms.Cursors.Hand;
-            this.btnCancel.FlatStyle                         = System.Windows.Forms.FlatStyle.Flat;
-            this.btnCancel.FlatAppearance.BorderColor        = System.Drawing.Color.FromArgb(203, 213, 225);
-            this.btnCancel.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(226, 232, 240);
-            this.btnCancel.Font                              = new System.Drawing.Font("Segoe UI", 10F);
-            this.btnCancel.ForeColor                         = System.Drawing.Color.FromArgb(71, 85, 105);
-            this.btnCancel.Location                          = new System.Drawing.Point(256, 28);
-            this.btnCancel.Name                              = "btnCancel";
-            this.btnCancel.Size                              = new System.Drawing.Size(124, 40);
-            this.btnCancel.Text                              = "Hủy";
-            this.btnCancel.UseVisualStyleBackColor           = false;
-            this.btnCancel.Click                            += new System.EventHandler(this.btnCancel_Click);
+            UIHelper.StyleButton(this.btnCancel, UIHelper.ButtonVariant.Secondary);
+            this.btnCancel.Location = new System.Drawing.Point(296, 28);
+            this.btnCancel.Size = new System.Drawing.Size(130, 40);
+            this.btnCancel.Text = "Hủy";
+            this.btnCancel.Click += btnCancel_Click;
 
             // ── frmCustomerEdit ──────────────────────────────────
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);

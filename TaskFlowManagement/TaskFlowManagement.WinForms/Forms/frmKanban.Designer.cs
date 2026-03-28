@@ -1,333 +1,423 @@
+﻿using TaskFlowManagement.WinForms.Common;
+
 namespace TaskFlowManagement.WinForms.Forms
 {
-    partial class frmKanban
+    partial class frmKanban   // BaseForm declared in frmKanban.cs
     {
         private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
-            {
-                components.Dispose();
-            }
+            if (disposing && components != null) components.Dispose();
             base.Dispose(disposing);
         }
 
-        #region Windows Form Designer generated code
-
         private void InitializeComponent()
         {
-            this.tlpBoard = new System.Windows.Forms.TableLayoutPanel();
-            this.pnlTodo = new System.Windows.Forms.Panel();
-            this.flpTodo = new TaskFlowManagement.WinForms.Forms.DoubleBufferedFlowLayoutPanel();
-            this.lblTodo = new System.Windows.Forms.Label();
-            this.pnlInProgress = new System.Windows.Forms.Panel();
-            this.flpInProgress = new TaskFlowManagement.WinForms.Forms.DoubleBufferedFlowLayoutPanel();
-            this.lblInProgress = new System.Windows.Forms.Label();
-            this.pnlReview = new System.Windows.Forms.Panel();
-            this.flpReview = new TaskFlowManagement.WinForms.Forms.DoubleBufferedFlowLayoutPanel();
-            this.lblReview = new System.Windows.Forms.Label();
-            this.pnlTesting = new System.Windows.Forms.Panel();
-            this.flpTesting = new TaskFlowManagement.WinForms.Forms.DoubleBufferedFlowLayoutPanel();
-            this.lblTesting = new System.Windows.Forms.Label();
-            this.pnlFailed = new System.Windows.Forms.Panel();
-            this.flpFailed = new TaskFlowManagement.WinForms.Forms.DoubleBufferedFlowLayoutPanel();
-            this.lblFailed = new System.Windows.Forms.Label();
-            this.pnlDone = new System.Windows.Forms.Panel();
-            this.flpDone = new TaskFlowManagement.WinForms.Forms.DoubleBufferedFlowLayoutPanel();
-            this.lblDone = new System.Windows.Forms.Label();
-            this.tlpBoard.SuspendLayout();
-            this.pnlTodo.SuspendLayout();
-            this.pnlInProgress.SuspendLayout();
-            this.pnlReview.SuspendLayout();
-            this.pnlTesting.SuspendLayout();
-            this.pnlFailed.SuspendLayout();
-            this.pnlDone.SuspendLayout();
+            // ── Instantiation ─────────────────────────────────────────────────
+            panelHeader = new Panel();
+            panelAccentLine = new Panel();
+            lblHeader = new Label();
+
+            panelFilter = new Panel();
+            btnRefresh = new Button();
+            lblFilterHint = new Label();
+
+            tlpBoard = new TableLayoutPanel();
+
+            pnlTodo = new Panel();
+            lblTodo = new Label();
+            flpTodo = new DoubleBufferedFlowLayoutPanel();
+
+            pnlInProgress = new Panel();
+            lblInProgress = new Label();
+            flpInProgress = new DoubleBufferedFlowLayoutPanel();
+
+            pnlReview = new Panel();
+            lblReview = new Label();
+            flpReview = new DoubleBufferedFlowLayoutPanel();
+
+            pnlTesting = new Panel();
+            lblTesting = new Label();
+            flpTesting = new DoubleBufferedFlowLayoutPanel();
+
+            pnlFailed = new Panel();
+            lblFailed = new Label();
+            flpFailed = new DoubleBufferedFlowLayoutPanel();
+
+            pnlDone = new Panel();
+            lblDone = new Label();
+            flpDone = new DoubleBufferedFlowLayoutPanel();
+
+            panelStatus = new Panel();
+            lblStatus = new Label();
+
+            panelHeader.SuspendLayout();
+            panelFilter.SuspendLayout();
+            panelStatus.SuspendLayout();
+            tlpBoard.SuspendLayout();
+            pnlTodo.SuspendLayout();
+            pnlInProgress.SuspendLayout();
+            pnlReview.SuspendLayout();
+            pnlTesting.SuspendLayout();
+            pnlFailed.SuspendLayout();
+            pnlDone.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // tlpBoard
-            // 
-            this.tlpBoard.ColumnCount = 6;
-            this.tlpBoard.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
-            this.tlpBoard.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
-            this.tlpBoard.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
-            this.tlpBoard.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
-            this.tlpBoard.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
-            this.tlpBoard.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
-            this.tlpBoard.Controls.Add(this.pnlTodo, 0, 0);
-            this.tlpBoard.Controls.Add(this.pnlInProgress, 1, 0);
-            this.tlpBoard.Controls.Add(this.pnlReview, 2, 0);
-            this.tlpBoard.Controls.Add(this.pnlTesting, 3, 0);
-            this.tlpBoard.Controls.Add(this.pnlFailed, 4, 0);
-            this.tlpBoard.Controls.Add(this.pnlDone, 5, 0);
-            this.tlpBoard.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tlpBoard.Location = new System.Drawing.Point(0, 0);
-            this.tlpBoard.Name = "tlpBoard";
-            this.tlpBoard.Padding = new System.Windows.Forms.Padding(12);
-            this.tlpBoard.RowCount = 1;
-            this.tlpBoard.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tlpBoard.Size = new System.Drawing.Size(1184, 761);
-            this.tlpBoard.TabIndex = 0;
-            // 
-            // pnlTodo
-            // 
-            this.pnlTodo.Controls.Add(this.flpTodo);
-            this.pnlTodo.Controls.Add(this.lblTodo);
-            this.pnlTodo.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlTodo.Location = new System.Drawing.Point(15, 15);
-            this.pnlTodo.Name = "pnlTodo";
-            this.pnlTodo.Padding = new System.Windows.Forms.Padding(8);
-            this.pnlTodo.Size = new System.Drawing.Size(187, 731);
-            this.pnlTodo.TabIndex = 0;
-            // 
-            // flpTodo
-            // 
-            this.flpTodo.AutoScroll = true;
-            this.flpTodo.BackColor = System.Drawing.Color.WhiteSmoke;
-            this.flpTodo.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flpTodo.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.flpTodo.Location = new System.Drawing.Point(8, 56);
-            this.flpTodo.Name = "flpTodo";
-            this.flpTodo.Padding = new System.Windows.Forms.Padding(8);
-            this.flpTodo.Size = new System.Drawing.Size(171, 667);
-            this.flpTodo.TabIndex = 1;
-            this.flpTodo.WrapContents = false;
-            // 
-            // lblTodo
-            // 
-            this.lblTodo.Dock = System.Windows.Forms.DockStyle.Top;
-            this.lblTodo.Font = new System.Drawing.Font("Segoe UI", 13F, System.Drawing.FontStyle.Bold);
-            this.lblTodo.ForeColor = System.Drawing.Color.FromArgb(30, 41, 59);
-            this.lblTodo.Location = new System.Drawing.Point(8, 8);
-            this.lblTodo.Name = "lblTodo";
-            this.lblTodo.Size = new System.Drawing.Size(171, 48);
-            this.lblTodo.TabIndex = 0;
-            this.lblTodo.Text = "To Do";
-            this.lblTodo.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // pnlInProgress
-            // 
-            this.pnlInProgress.Controls.Add(this.flpInProgress);
-            this.pnlInProgress.Controls.Add(this.lblInProgress);
-            this.pnlInProgress.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlInProgress.Location = new System.Drawing.Point(205, 15);
-            this.pnlInProgress.Name = "pnlInProgress";
-            this.pnlInProgress.Padding = new System.Windows.Forms.Padding(8);
-            this.pnlInProgress.Size = new System.Drawing.Size(187, 731);
-            this.pnlInProgress.TabIndex = 1;
-            // 
-            // flpInProgress
-            // 
-            this.flpInProgress.AutoScroll = true;
-            this.flpInProgress.BackColor = System.Drawing.Color.WhiteSmoke;
-            this.flpInProgress.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flpInProgress.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.flpInProgress.Location = new System.Drawing.Point(8, 56);
-            this.flpInProgress.Name = "flpInProgress";
-            this.flpInProgress.Padding = new System.Windows.Forms.Padding(8);
-            this.flpInProgress.Size = new System.Drawing.Size(171, 667);
-            this.flpInProgress.TabIndex = 2;
-            this.flpInProgress.WrapContents = false;
-            // 
-            // lblInProgress
-            // 
-            this.lblInProgress.Dock = System.Windows.Forms.DockStyle.Top;
-            this.lblInProgress.Font = new System.Drawing.Font("Segoe UI", 13F, System.Drawing.FontStyle.Bold);
-            this.lblInProgress.ForeColor = System.Drawing.Color.FromArgb(30, 41, 59);
-            this.lblInProgress.Location = new System.Drawing.Point(8, 8);
-            this.lblInProgress.Name = "lblInProgress";
-            this.lblInProgress.Size = new System.Drawing.Size(171, 48);
-            this.lblInProgress.TabIndex = 1;
-            this.lblInProgress.Text = "In Progress";
-            this.lblInProgress.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // pnlReview
-            // 
-            this.pnlReview.Controls.Add(this.flpReview);
-            this.pnlReview.Controls.Add(this.lblReview);
-            this.pnlReview.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlReview.Location = new System.Drawing.Point(395, 15);
-            this.pnlReview.Name = "pnlReview";
-            this.pnlReview.Padding = new System.Windows.Forms.Padding(8);
-            this.pnlReview.Size = new System.Drawing.Size(187, 731);
-            this.pnlReview.TabIndex = 2;
-            // 
-            // flpReview
-            // 
-            this.flpReview.AutoScroll = true;
-            this.flpReview.BackColor = System.Drawing.Color.WhiteSmoke;
-            this.flpReview.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flpReview.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.flpReview.Location = new System.Drawing.Point(8, 56);
-            this.flpReview.Name = "flpReview";
-            this.flpReview.Padding = new System.Windows.Forms.Padding(8);
-            this.flpReview.Size = new System.Drawing.Size(171, 667);
-            this.flpReview.TabIndex = 2;
-            this.flpReview.WrapContents = false;
-            // 
-            // lblReview
-            // 
-            this.lblReview.Dock = System.Windows.Forms.DockStyle.Top;
-            this.lblReview.Font = new System.Drawing.Font("Segoe UI", 13F, System.Drawing.FontStyle.Bold);
-            this.lblReview.ForeColor = System.Drawing.Color.FromArgb(30, 41, 59);
-            this.lblReview.Location = new System.Drawing.Point(8, 8);
-            this.lblReview.Name = "lblReview";
-            this.lblReview.Size = new System.Drawing.Size(171, 48);
-            this.lblReview.TabIndex = 1;
-            this.lblReview.Text = "Review";
-            this.lblReview.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // pnlTesting
-            // 
-            this.pnlTesting.Controls.Add(this.flpTesting);
-            this.pnlTesting.Controls.Add(this.lblTesting);
-            this.pnlTesting.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlTesting.Location = new System.Drawing.Point(585, 15);
-            this.pnlTesting.Name = "pnlTesting";
-            this.pnlTesting.Padding = new System.Windows.Forms.Padding(8);
-            this.pnlTesting.Size = new System.Drawing.Size(187, 731);
-            this.pnlTesting.TabIndex = 3;
-            // 
-            // flpTesting
-            // 
-            this.flpTesting.AutoScroll = true;
-            this.flpTesting.BackColor = System.Drawing.Color.WhiteSmoke;
-            this.flpTesting.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flpTesting.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.flpTesting.Location = new System.Drawing.Point(8, 56);
-            this.flpTesting.Name = "flpTesting";
-            this.flpTesting.Padding = new System.Windows.Forms.Padding(8);
-            this.flpTesting.Size = new System.Drawing.Size(171, 667);
-            this.flpTesting.TabIndex = 2;
-            this.flpTesting.WrapContents = false;
-            // 
-            // lblTesting
-            // 
-            this.lblTesting.Dock = System.Windows.Forms.DockStyle.Top;
-            this.lblTesting.Font = new System.Drawing.Font("Segoe UI", 13F, System.Drawing.FontStyle.Bold);
-            this.lblTesting.ForeColor = System.Drawing.Color.FromArgb(30, 41, 59);
-            this.lblTesting.Location = new System.Drawing.Point(8, 8);
-            this.lblTesting.Name = "lblTesting";
-            this.lblTesting.Size = new System.Drawing.Size(171, 48);
-            this.lblTesting.TabIndex = 1;
-            this.lblTesting.Text = "Testing";
-            this.lblTesting.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // pnlFailed
-            // 
-            this.pnlFailed.Controls.Add(this.flpFailed);
-            this.pnlFailed.Controls.Add(this.lblFailed);
-            this.pnlFailed.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlFailed.Location = new System.Drawing.Point(775, 15);
-            this.pnlFailed.Name = "pnlFailed";
-            this.pnlFailed.Padding = new System.Windows.Forms.Padding(8);
-            this.pnlFailed.Size = new System.Drawing.Size(187, 731);
-            this.pnlFailed.TabIndex = 4;
-            // 
-            // flpFailed
-            // 
-            this.flpFailed.AutoScroll = true;
-            this.flpFailed.BackColor = System.Drawing.Color.FromArgb(254, 242, 242);
-            this.flpFailed.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flpFailed.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.flpFailed.Location = new System.Drawing.Point(8, 56);
-            this.flpFailed.Name = "flpFailed";
-            this.flpFailed.Padding = new System.Windows.Forms.Padding(8);
-            this.flpFailed.Size = new System.Drawing.Size(171, 667);
-            this.flpFailed.TabIndex = 2;
-            this.flpFailed.WrapContents = false;
-            // 
-            // lblFailed
-            // 
-            this.lblFailed.Dock = System.Windows.Forms.DockStyle.Top;
-            this.lblFailed.Font = new System.Drawing.Font("Segoe UI", 13F, System.Drawing.FontStyle.Bold);
-            this.lblFailed.ForeColor = System.Drawing.Color.FromArgb(185, 28, 28);
-            this.lblFailed.Location = new System.Drawing.Point(8, 8);
-            this.lblFailed.Name = "lblFailed";
-            this.lblFailed.Size = new System.Drawing.Size(171, 48);
-            this.lblFailed.TabIndex = 1;
-            this.lblFailed.Text = "Failed";
-            this.lblFailed.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // pnlDone
-            // 
-            this.pnlDone.Controls.Add(this.flpDone);
-            this.pnlDone.Controls.Add(this.lblDone);
-            this.pnlDone.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlDone.Location = new System.Drawing.Point(965, 15);
-            this.pnlDone.Name = "pnlDone";
-            this.pnlDone.Padding = new System.Windows.Forms.Padding(8);
-            this.pnlDone.Size = new System.Drawing.Size(204, 731);
-            this.pnlDone.TabIndex = 5;
-            // 
-            // flpDone
-            // 
-            this.flpDone.AutoScroll = true;
-            this.flpDone.BackColor = System.Drawing.Color.WhiteSmoke;
-            this.flpDone.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flpDone.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.flpDone.Location = new System.Drawing.Point(8, 56);
-            this.flpDone.Name = "flpDone";
-            this.flpDone.Padding = new System.Windows.Forms.Padding(8);
-            this.flpDone.Size = new System.Drawing.Size(188, 667);
-            this.flpDone.TabIndex = 2;
-            this.flpDone.WrapContents = false;
-            // 
-            // lblDone
-            // 
-            this.lblDone.Dock = System.Windows.Forms.DockStyle.Top;
-            this.lblDone.Font = new System.Drawing.Font("Segoe UI", 13F, System.Drawing.FontStyle.Bold);
-            this.lblDone.ForeColor = System.Drawing.Color.FromArgb(30, 41, 59);
-            this.lblDone.Location = new System.Drawing.Point(8, 8);
-            this.lblDone.Name = "lblDone";
-            this.lblDone.Size = new System.Drawing.Size(188, 48);
-            this.lblDone.TabIndex = 1;
-            this.lblDone.Text = "Done";
-            this.lblDone.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // frmKanban
-            // 
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.WhiteSmoke;
-            this.ClientSize = new System.Drawing.Size(1184, 761);
-            this.Controls.Add(this.tlpBoard);
+
+            // ════════════════════════════════════════════════════
+            // panelHeader — Dark banner (THÊM MỚI)
+            // ════════════════════════════════════════════════════
+            panelHeader.BackColor = UIHelper.ColorHeaderBg;
+            panelHeader.Dock = DockStyle.Top;
+            panelHeader.Height = 58;
+            panelHeader.Name = "panelHeader";
+            panelHeader.Controls.Add(lblHeader);
+            panelHeader.Controls.Add(panelAccentLine);
+
+            // Accent line xanh — nhất quán với frmUsers / frmTaskList
+            panelAccentLine.BackColor = System.Drawing.Color.FromArgb(37, 99, 235);
+            panelAccentLine.Dock = DockStyle.Bottom;
+            panelAccentLine.Height = 4;
+            panelAccentLine.Name = "panelAccentLine";
+
+            lblHeader.AutoSize = false;
+            lblHeader.Dock = DockStyle.Fill;
+            lblHeader.Font = UIHelper.FontHeaderLarge;
+            lblHeader.ForeColor = UIHelper.ColorHeaderFg;
+            lblHeader.Name = "lblHeader";
+            lblHeader.Padding = new Padding(18, 0, 0, 4);
+            lblHeader.Text = "🗂️  Kanban Board";
+            lblHeader.TextAlign = ContentAlignment.MiddleLeft;
+
+            // ════════════════════════════════════════════════════
+            // panelFilter — Toolbar (THÊM MỚI)
+            // ════════════════════════════════════════════════════
+            panelFilter.BackColor = UIHelper.ColorBackground;
+            panelFilter.Dock = DockStyle.Top;
+            panelFilter.Height = 46;
+            panelFilter.Name = "panelFilter";
+            panelFilter.Controls.Add(btnRefresh);
+            panelFilter.Controls.Add(lblFilterHint);
+
+            UIHelper.StyleToolButton(btnRefresh, "🔄  Làm mới", UIHelper.ButtonVariant.Secondary, 14, 9, 110, 30);
+            btnRefresh.Name = "btnRefresh";
+            btnRefresh.Click += btnRefresh_Click;
+
+            lblFilterHint.AutoSize = false;
+            lblFilterHint.Font = UIHelper.FontSmall;
+            lblFilterHint.ForeColor = UIHelper.ColorMuted;
+            lblFilterHint.Location = new Point(134, 14);
+            lblFilterHint.Name = "lblFilterHint";
+            lblFilterHint.Size = new Size(380, 18);
+            lblFilterHint.Text = "Double-click vào thẻ để mở chi tiết · Kéo thẻ để đổi trạng thái";
+
+            // ════════════════════════════════════════════════════
+            // panelStatus — Status bar (THÊM MỚI)
+            // ════════════════════════════════════════════════════
+            panelStatus.BackColor = UIHelper.ColorHeaderBg;
+            panelStatus.Dock = DockStyle.Bottom;
+            panelStatus.Height = 28;
+            panelStatus.Name = "panelStatus";
+            panelStatus.Controls.Add(lblStatus);
+
+            lblStatus.AutoSize = false;
+            lblStatus.Dock = DockStyle.Fill;
+            lblStatus.Font = UIHelper.FontSmall;
+            lblStatus.ForeColor = UIHelper.ColorSubtitle;
+            lblStatus.Name = "lblStatus";
+            lblStatus.Padding = new Padding(12, 0, 0, 0);
+            lblStatus.Text = "Sẵn sàng";
+            lblStatus.TextAlign = ContentAlignment.MiddleLeft;
+
+            // ════════════════════════════════════════════════════
+            // tlpBoard — 6-column Kanban layout
+            // ════════════════════════════════════════════════════
+            tlpBoard.BackColor = UIHelper.ColorBackground;
+            tlpBoard.ColumnCount = 6;
+            tlpBoard.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 16.66667F));
+            tlpBoard.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 16.66667F));
+            tlpBoard.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 16.66667F));
+            tlpBoard.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 16.66667F));
+            tlpBoard.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 16.66667F));
+            tlpBoard.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 16.66667F));
+            tlpBoard.Controls.Add(pnlTodo, 0, 0);
+            tlpBoard.Controls.Add(pnlInProgress, 1, 0);
+            tlpBoard.Controls.Add(pnlReview, 2, 0);
+            tlpBoard.Controls.Add(pnlTesting, 3, 0);
+            tlpBoard.Controls.Add(pnlFailed, 4, 0);
+            tlpBoard.Controls.Add(pnlDone, 5, 0);
+            tlpBoard.Dock = DockStyle.Fill;
+            tlpBoard.Name = "tlpBoard";
+            tlpBoard.Padding = new Padding(8, 10, 8, 10);
+            tlpBoard.RowCount = 1;
+            tlpBoard.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tlpBoard.TabIndex = 0;
+
+            // ════════════════════════════════════════════════════
+            // COLUMN: To Do — Slate (#E2E8F0 header / #F8FAFC body)
+            // ════════════════════════════════════════════════════
+            var clrTodoBg = System.Drawing.Color.FromArgb(248, 250, 252);
+            var clrTodoHeader = System.Drawing.Color.FromArgb(226, 232, 240);
+            var clrTodoFg = System.Drawing.Color.FromArgb(51, 65, 85);
+
+            pnlTodo.BackColor = clrTodoBg;
+            pnlTodo.Dock = DockStyle.Fill;
+            pnlTodo.Margin = new Padding(4);
+            pnlTodo.Name = "pnlTodo";
+            pnlTodo.Padding = new Padding(0);
+            pnlTodo.Controls.Add(flpTodo);
+            pnlTodo.Controls.Add(lblTodo);
+
+            lblTodo.BackColor = clrTodoHeader;
+            lblTodo.Dock = DockStyle.Top;
+            lblTodo.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
+            lblTodo.ForeColor = clrTodoFg;
+            lblTodo.Name = "lblTodo";
+            lblTodo.Padding = new Padding(10, 0, 0, 0);
+            lblTodo.Size = new Size(0, 44);
+            lblTodo.TabIndex = 0;
+            lblTodo.Text = "📋  To Do";
+            lblTodo.TextAlign = ContentAlignment.MiddleLeft;
+
+            flpTodo.AutoScroll = true;
+            flpTodo.BackColor = clrTodoBg;
+            flpTodo.Dock = DockStyle.Fill;
+            flpTodo.FlowDirection = FlowDirection.TopDown;
+            flpTodo.Name = "flpTodo";
+            flpTodo.Padding = new Padding(6);
+            flpTodo.TabIndex = 1;
+            flpTodo.WrapContents = false;
+
+            // ════════════════════════════════════════════════════
+            // COLUMN: In Progress — Blue (#BFDBFE header / #EFF6FF body)
+            // ════════════════════════════════════════════════════
+            var clrInBg = System.Drawing.Color.FromArgb(239, 246, 255);
+            var clrInHeader = System.Drawing.Color.FromArgb(191, 219, 254);
+            var clrInFg = System.Drawing.Color.FromArgb(30, 58, 138);
+
+            pnlInProgress.BackColor = clrInBg;
+            pnlInProgress.Dock = DockStyle.Fill;
+            pnlInProgress.Margin = new Padding(4);
+            pnlInProgress.Name = "pnlInProgress";
+            pnlInProgress.Padding = new Padding(0);
+            pnlInProgress.Controls.Add(flpInProgress);
+            pnlInProgress.Controls.Add(lblInProgress);
+
+            lblInProgress.BackColor = clrInHeader;
+            lblInProgress.Dock = DockStyle.Top;
+            lblInProgress.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
+            lblInProgress.ForeColor = clrInFg;
+            lblInProgress.Name = "lblInProgress";
+            lblInProgress.Padding = new Padding(10, 0, 0, 0);
+            lblInProgress.Size = new Size(0, 44);
+            lblInProgress.TabIndex = 1;
+            lblInProgress.Text = "🔄  In Progress";
+            lblInProgress.TextAlign = ContentAlignment.MiddleLeft;
+
+            flpInProgress.AutoScroll = true;
+            flpInProgress.BackColor = clrInBg;
+            flpInProgress.Dock = DockStyle.Fill;
+            flpInProgress.FlowDirection = FlowDirection.TopDown;
+            flpInProgress.Name = "flpInProgress";
+            flpInProgress.Padding = new Padding(6);
+            flpInProgress.TabIndex = 2;
+            flpInProgress.WrapContents = false;
+
+            // ════════════════════════════════════════════════════
+            // COLUMN: Review — Amber (#FDE68A header / #FFFBEB body)
+            // ════════════════════════════════════════════════════
+            var clrRevBg = System.Drawing.Color.FromArgb(255, 251, 235);
+            var clrRevHeader = System.Drawing.Color.FromArgb(253, 230, 138);
+            var clrRevFg = System.Drawing.Color.FromArgb(120, 53, 15);
+
+            pnlReview.BackColor = clrRevBg;
+            pnlReview.Dock = DockStyle.Fill;
+            pnlReview.Margin = new Padding(4);
+            pnlReview.Name = "pnlReview";
+            pnlReview.Padding = new Padding(0);
+            pnlReview.Controls.Add(flpReview);
+            pnlReview.Controls.Add(lblReview);
+
+            lblReview.BackColor = clrRevHeader;
+            lblReview.Dock = DockStyle.Top;
+            lblReview.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
+            lblReview.ForeColor = clrRevFg;
+            lblReview.Name = "lblReview";
+            lblReview.Padding = new Padding(10, 0, 0, 0);
+            lblReview.Size = new Size(0, 44);
+            lblReview.TabIndex = 1;
+            lblReview.Text = "👀  Review";
+            lblReview.TextAlign = ContentAlignment.MiddleLeft;
+
+            flpReview.AutoScroll = true;
+            flpReview.BackColor = clrRevBg;
+            flpReview.Dock = DockStyle.Fill;
+            flpReview.FlowDirection = FlowDirection.TopDown;
+            flpReview.Name = "flpReview";
+            flpReview.Padding = new Padding(6);
+            flpReview.TabIndex = 2;
+            flpReview.WrapContents = false;
+
+            // ════════════════════════════════════════════════════
+            // COLUMN: Testing — Purple (#DDD6FE header / #F5F3FF body)
+            // ════════════════════════════════════════════════════
+            var clrTestBg = System.Drawing.Color.FromArgb(245, 243, 255);
+            var clrTestHeader = System.Drawing.Color.FromArgb(221, 214, 254);
+            var clrTestFg = System.Drawing.Color.FromArgb(76, 29, 149);
+
+            pnlTesting.BackColor = clrTestBg;
+            pnlTesting.Dock = DockStyle.Fill;
+            pnlTesting.Margin = new Padding(4);
+            pnlTesting.Name = "pnlTesting";
+            pnlTesting.Padding = new Padding(0);
+            pnlTesting.Controls.Add(flpTesting);
+            pnlTesting.Controls.Add(lblTesting);
+
+            lblTesting.BackColor = clrTestHeader;
+            lblTesting.Dock = DockStyle.Top;
+            lblTesting.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
+            lblTesting.ForeColor = clrTestFg;
+            lblTesting.Name = "lblTesting";
+            lblTesting.Padding = new Padding(10, 0, 0, 0);
+            lblTesting.Size = new Size(0, 44);
+            lblTesting.TabIndex = 1;
+            lblTesting.Text = "🧪  Testing";
+            lblTesting.TextAlign = ContentAlignment.MiddleLeft;
+
+            flpTesting.AutoScroll = true;
+            flpTesting.BackColor = clrTestBg;
+            flpTesting.Dock = DockStyle.Fill;
+            flpTesting.FlowDirection = FlowDirection.TopDown;
+            flpTesting.Name = "flpTesting";
+            flpTesting.Padding = new Padding(6);
+            flpTesting.TabIndex = 2;
+            flpTesting.WrapContents = false;
+
+            // ════════════════════════════════════════════════════
+            // COLUMN: Failed — Red (#FECACA header / #FEF2F2 body)
+            // ════════════════════════════════════════════════════
+            var clrFailBg = System.Drawing.Color.FromArgb(254, 242, 242);
+            var clrFailHeader = System.Drawing.Color.FromArgb(254, 202, 202);
+            var clrFailFg = System.Drawing.Color.FromArgb(127, 29, 29);
+
+            pnlFailed.BackColor = clrFailBg;
+            pnlFailed.Dock = DockStyle.Fill;
+            pnlFailed.Margin = new Padding(4);
+            pnlFailed.Name = "pnlFailed";
+            pnlFailed.Padding = new Padding(0);
+            pnlFailed.Controls.Add(flpFailed);
+            pnlFailed.Controls.Add(lblFailed);
+
+            lblFailed.BackColor = clrFailHeader;
+            lblFailed.Dock = DockStyle.Top;
+            lblFailed.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
+            lblFailed.ForeColor = clrFailFg;
+            lblFailed.Name = "lblFailed";
+            lblFailed.Padding = new Padding(10, 0, 0, 0);
+            lblFailed.Size = new Size(0, 44);
+            lblFailed.TabIndex = 1;
+            lblFailed.Text = "❌  Failed";
+            lblFailed.TextAlign = ContentAlignment.MiddleLeft;
+
+            flpFailed.AutoScroll = true;
+            flpFailed.BackColor = clrFailBg;
+            flpFailed.Dock = DockStyle.Fill;
+            flpFailed.FlowDirection = FlowDirection.TopDown;
+            flpFailed.Name = "flpFailed";
+            flpFailed.Padding = new Padding(6);
+            flpFailed.TabIndex = 2;
+            flpFailed.WrapContents = false;
+
+            // ════════════════════════════════════════════════════
+            // COLUMN: Done — Green (#BBF7D0 header / #F0FDF4 body)
+            // ════════════════════════════════════════════════════
+            var clrDoneBg = System.Drawing.Color.FromArgb(240, 253, 244);
+            var clrDoneHeader = System.Drawing.Color.FromArgb(187, 247, 208);
+            var clrDoneFg = System.Drawing.Color.FromArgb(20, 83, 45);
+
+            pnlDone.BackColor = clrDoneBg;
+            pnlDone.Dock = DockStyle.Fill;
+            pnlDone.Margin = new Padding(4);
+            pnlDone.Name = "pnlDone";
+            pnlDone.Padding = new Padding(0);
+            pnlDone.Controls.Add(flpDone);
+            pnlDone.Controls.Add(lblDone);
+
+            lblDone.BackColor = clrDoneHeader;
+            lblDone.Dock = DockStyle.Top;
+            lblDone.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
+            lblDone.ForeColor = clrDoneFg;
+            lblDone.Name = "lblDone";
+            lblDone.Padding = new Padding(10, 0, 0, 0);
+            lblDone.Size = new Size(0, 44);
+            lblDone.TabIndex = 1;
+            lblDone.Text = "✅  Done";
+            lblDone.TextAlign = ContentAlignment.MiddleLeft;
+
+            flpDone.AutoScroll = true;
+            flpDone.BackColor = clrDoneBg;
+            flpDone.Dock = DockStyle.Fill;
+            flpDone.FlowDirection = FlowDirection.TopDown;
+            flpDone.Name = "flpDone";
+            flpDone.Padding = new Padding(6);
+            flpDone.TabIndex = 2;
+            flpDone.WrapContents = false;
+
+            // ════════════════════════════════════════════════════
+            // Form
+            // ════════════════════════════════════════════════════
+            this.Text = "🗂️  Kanban Board";
+            this.Size = new Size(1280, 800);
+            this.MinimumSize = new Size(1000, 650);
             this.Name = "frmKanban";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Kanban Board";
-            this.tlpBoard.ResumeLayout(false);
-            this.pnlTodo.ResumeLayout(false);
-            this.pnlInProgress.ResumeLayout(false);
-            this.pnlReview.ResumeLayout(false);
-            this.pnlTesting.ResumeLayout(false);
-            this.pnlFailed.ResumeLayout(false);
-            this.pnlDone.ResumeLayout(false);
+            this.StartPosition = FormStartPosition.CenterScreen;
+
+            // Thứ tự Add PHẢI là: Fill trước → Bottom → Top (ngược chiều Dock)
+            this.Controls.Add(tlpBoard);     // DockStyle.Fill
+            this.Controls.Add(panelStatus);  // DockStyle.Bottom
+            this.Controls.Add(panelFilter);  // DockStyle.Top (thứ hai)
+            this.Controls.Add(panelHeader);  // DockStyle.Top (trên cùng)
+
+            panelHeader.ResumeLayout(false);
+            panelFilter.ResumeLayout(false);
+            panelStatus.ResumeLayout(false);
+            tlpBoard.ResumeLayout(false);
+            pnlTodo.ResumeLayout(false);
+            pnlInProgress.ResumeLayout(false);
+            pnlReview.ResumeLayout(false);
+            pnlTesting.ResumeLayout(false);
+            pnlFailed.ResumeLayout(false);
+            pnlDone.ResumeLayout(false);
             this.ResumeLayout(false);
         }
 
-        #endregion
-
-        private System.Windows.Forms.TableLayoutPanel tlpBoard;
-        private System.Windows.Forms.Panel pnlTodo;
-        private System.Windows.Forms.Label lblTodo;
-        private System.Windows.Forms.Panel pnlInProgress;
-        private System.Windows.Forms.Label lblInProgress;
-        private System.Windows.Forms.Panel pnlReview;
-        private System.Windows.Forms.Label lblReview;
-        private System.Windows.Forms.Panel pnlTesting;
-        private System.Windows.Forms.Label lblTesting;
-        private System.Windows.Forms.Panel pnlFailed;
-        private System.Windows.Forms.Label lblFailed;
-        private System.Windows.Forms.Panel pnlDone;
-        private System.Windows.Forms.Label lblDone;
+        // ── Field declarations ────────────────────────────────────────────────
+        private Panel panelHeader;
+        private Panel panelAccentLine;
+        private Label lblHeader;
+        private Panel panelFilter;
+        private Button btnRefresh;
+        private Label lblFilterHint;
+        private TableLayoutPanel tlpBoard;
+        private Panel pnlTodo;
+        private Label lblTodo;
         private DoubleBufferedFlowLayoutPanel flpTodo;
+        private Panel pnlInProgress;
+        private Label lblInProgress;
         private DoubleBufferedFlowLayoutPanel flpInProgress;
+        private Panel pnlReview;
+        private Label lblReview;
         private DoubleBufferedFlowLayoutPanel flpReview;
+        private Panel pnlTesting;
+        private Label lblTesting;
         private DoubleBufferedFlowLayoutPanel flpTesting;
+        private Panel pnlFailed;
+        private Label lblFailed;
         private DoubleBufferedFlowLayoutPanel flpFailed;
+        private Panel pnlDone;
+        private Label lblDone;
         private DoubleBufferedFlowLayoutPanel flpDone;
+        private Panel panelStatus;
+        private Label lblStatus;
     }
 }

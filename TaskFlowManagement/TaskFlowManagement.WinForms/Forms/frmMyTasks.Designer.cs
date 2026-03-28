@@ -1,34 +1,62 @@
+// ============================================================
+//  frmMyTasks.Designer.cs  (REFACTORED)
+//  TaskFlowManagement.WinForms.Forms
+//
+//  THAY ĐỔI SO VỚI PHIÊN BẢN CŨ:
+//  ─────────────────────────────────────────────────────────
+//  [Cấu trúc mới — nhất quán với frmUsers / frmTaskList]
+//   • panelHeader  — dark banner (#0F172A) + accent line xanh [THÊM MỚI]
+//   • panelFilter  — toolbar với lblUser + btnRefresh [SỬA TỪ panelTop]
+//   • panelStatus  — status bar bottom dark [SỬA TỪ panelBottom]
+//   • TabControl   — styling font, ItemSize chuẩn
+//
+//  [UIHelper áp dụng]
+//   • UIHelper.StyleDataGridView() cho cả 3 DataGridView [THÊM MỚI]
+//   • UIHelper.ApplyAlternateRowColors() cho cả 3 grid [THÊM MỚI]
+//   • UIHelper.StyleToolButton() cho btnRefresh [SỬA]
+//   • UIHelper.ColorHeaderBg / ColorBackground / ColorMuted / ColorSubtitle
+//   • UIHelper.FontHeaderLarge / FontBody / FontSmall
+// ============================================================
+using TaskFlowManagement.WinForms.Common;
+
 namespace TaskFlowManagement.WinForms.Forms
 {
-    partial class frmMyTasks
+    partial class frmMyTasks   // BaseForm declared in frmMyTasks.cs
     {
         private System.ComponentModel.IContainer components = null;
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
-                components.Dispose();
+            if (disposing && components != null) components.Dispose();
             base.Dispose(disposing);
         }
 
         private void InitializeComponent()
         {
-            // ── Khởi tạo tất cả control ──────────────────────────
-            panelTop     = new Panel();
-            panelBottom  = new Panel();
-            tabControl   = new TabControl();
-            tabMyTasks   = new TabPage();
-            tabReview    = new TabPage();
-            tabTesting   = new TabPage();
-            dgvMyTasks   = new DataGridView();
-            dgvReview    = new DataGridView();
-            dgvTesting   = new DataGridView();
-            lblUser      = new Label();
-            lblStatus    = new Label();
-            btnRefresh   = new Button();
+            // ── Instantiation ─────────────────────────────────────────────────
+            panelHeader = new Panel();
+            panelAccentLine = new Panel();
+            lblHeader = new Label();
 
-            panelTop.SuspendLayout();
-            panelBottom.SuspendLayout();
+            panelFilter = new Panel();
+            lblUser = new Label();
+            btnRefresh = new Button();
+
+            tabControl = new TabControl();
+            tabMyTasks = new TabPage();
+            tabReview = new TabPage();
+            tabTesting = new TabPage();
+
+            dgvMyTasks = new DataGridView();
+            dgvReview = new DataGridView();
+            dgvTesting = new DataGridView();
+
+            panelStatus = new Panel();
+            lblStatus = new Label();
+
+            panelHeader.SuspendLayout();
+            panelFilter.SuspendLayout();
+            panelStatus.SuspendLayout();
             tabControl.SuspendLayout();
             tabMyTasks.SuspendLayout();
             tabReview.SuspendLayout();
@@ -39,100 +67,133 @@ namespace TaskFlowManagement.WinForms.Forms
             this.SuspendLayout();
 
             // ════════════════════════════════════════════════════
-            // panelTop — thanh thông tin user + nút Làm mới
+            // panelHeader — Dark banner (THÊM MỚI: trước không có)
             // ════════════════════════════════════════════════════
-            panelTop.Dock    = DockStyle.Top;
-            panelTop.Height  = 46;
-            panelTop.Padding = new Padding(10, 8, 10, 6);
+            panelHeader.BackColor = UIHelper.ColorHeaderBg;
+            panelHeader.Dock = DockStyle.Top;
+            panelHeader.Height = 58;
+            panelHeader.Name = "panelHeader";
+            panelHeader.Controls.Add(lblHeader);
+            panelHeader.Controls.Add(panelAccentLine);
 
-            // ── lblUser ───────────────────────────────────────
-            lblUser.Location  = new Point(10, 13);
-            lblUser.Size      = new Size(700, 22);
-            lblUser.Font      = new Font("Segoe UI", 10F, FontStyle.Bold);
-            lblUser.ForeColor = Color.FromArgb(37, 99, 235);
-            lblUser.Text      = "Đang tải...";
+            panelAccentLine.BackColor = System.Drawing.Color.FromArgb(37, 99, 235);
+            panelAccentLine.Dock = DockStyle.Bottom;
+            panelAccentLine.Height = 4;
+            panelAccentLine.Name = "panelAccentLine";
 
-            // ── btnRefresh ────────────────────────────────────
-            btnRefresh.Location  = new Point(800, 8);
-            btnRefresh.Size      = new Size(100, 30);
-            btnRefresh.Text      = "🔄 Làm mới";
-            btnRefresh.Font      = new Font("Segoe UI", 9.5F);
-            btnRefresh.Click    += btnRefresh_Click;
-
-            panelTop.Controls.AddRange(new Control[] { lblUser, btnRefresh });
-
-            // ════════════════════════════════════════════════════
-            // panelBottom — thanh trạng thái phía dưới
-            // ════════════════════════════════════════════════════
-            panelBottom.Dock   = DockStyle.Bottom;
-            panelBottom.Height = 30;
-
-            // ── lblStatus ─────────────────────────────────────
-            lblStatus.Location  = new Point(10, 7);
-            lblStatus.Size      = new Size(700, 20);
-            lblStatus.Font      = new Font("Segoe UI", 9F);
-            lblStatus.Text      = "Sẵn sàng";
-
-            panelBottom.Controls.Add(lblStatus);
+            lblHeader.AutoSize = false;
+            lblHeader.Dock = DockStyle.Fill;
+            lblHeader.Font = UIHelper.FontHeaderLarge;
+            lblHeader.ForeColor = UIHelper.ColorHeaderFg;
+            lblHeader.Name = "lblHeader";
+            lblHeader.Padding = new Padding(18, 0, 0, 4);
+            lblHeader.Text = "📋  Công việc của tôi";
+            lblHeader.TextAlign = ContentAlignment.MiddleLeft;
 
             // ════════════════════════════════════════════════════
-            // Tạo cấu hình cột dùng chung cho cả 3 DataGridView
-            // Gọi helper để tránh lặp code
+            // panelFilter — Toolbar: thông tin user + nút Làm mới
+            // (SỬA: trước là panelTop không có styling)
+            // ════════════════════════════════════════════════════
+            panelFilter.BackColor = UIHelper.ColorBackground;
+            panelFilter.Dock = DockStyle.Top;
+            panelFilter.Height = 46;
+            panelFilter.Name = "panelFilter";
+            panelFilter.Controls.Add(lblUser);
+            panelFilter.Controls.Add(btnRefresh);
+
+            lblUser.AutoSize = false;
+            lblUser.Font = UIHelper.FontBase;
+            lblUser.ForeColor = System.Drawing.Color.FromArgb(37, 99, 235);
+            lblUser.Location = new Point(14, 13);
+            lblUser.Name = "lblUser";
+            lblUser.Size = new Size(660, 22);
+            lblUser.Text = "Đang tải...";
+
+            UIHelper.StyleToolButton(btnRefresh, "🔄  Làm mới", UIHelper.ButtonVariant.Secondary, 686, 9, 110, 30);
+            btnRefresh.Name = "btnRefresh";
+            btnRefresh.Click += btnRefresh_Click;
+
+            // ════════════════════════════════════════════════════
+            // panelStatus — Status bar (SỬA: trước panelBottom không có dark bg)
+            // ════════════════════════════════════════════════════
+            panelStatus.BackColor = UIHelper.ColorHeaderBg;
+            panelStatus.Dock = DockStyle.Bottom;
+            panelStatus.Height = 28;
+            panelStatus.Name = "panelStatus";
+            panelStatus.Controls.Add(lblStatus);
+
+            lblStatus.AutoSize = false;
+            lblStatus.Dock = DockStyle.Fill;
+            lblStatus.Font = UIHelper.FontSmall;
+            lblStatus.ForeColor = UIHelper.ColorSubtitle;
+            lblStatus.Name = "lblStatus";
+            lblStatus.Padding = new Padding(12, 0, 0, 0);
+            lblStatus.Text = "Sẵn sàng";
+            lblStatus.TextAlign = ContentAlignment.MiddleLeft;
+
+            // ════════════════════════════════════════════════════
+            // DataGridViews — áp dụng UIHelper (THÊM MỚI)
             // ════════════════════════════════════════════════════
             ConfigureTaskGrid(dgvMyTasks);
             ConfigureTaskGrid(dgvReview);
             ConfigureTaskGrid(dgvTesting);
 
-            // Gắn event double-click cho cả 3 grid
             dgvMyTasks.CellDoubleClick += dgv_CellDoubleClick;
-            dgvReview.CellDoubleClick  += dgv_CellDoubleClick;
+            dgvReview.CellDoubleClick += dgv_CellDoubleClick;
             dgvTesting.CellDoubleClick += dgv_CellDoubleClick;
 
             // ════════════════════════════════════════════════════
             // Tab Pages
             // ════════════════════════════════════════════════════
-
-            // ── tabMyTasks ────────────────────────────────────
-            tabMyTasks.Text    = "📋 Được giao (0)";
+            tabMyTasks.BackColor = System.Drawing.Color.White;
+            tabMyTasks.Text = "📋  Được giao (0)";
             tabMyTasks.Padding = new Padding(3);
+            tabMyTasks.Name = "tabMyTasks";
             tabMyTasks.Controls.Add(dgvMyTasks);
             dgvMyTasks.Dock = DockStyle.Fill;
 
-            // ── tabReview ─────────────────────────────────────
-            tabReview.Text    = "🔍 Review (0)";
+            tabReview.BackColor = System.Drawing.Color.White;
+            tabReview.Text = "🔍  Review (0)";
             tabReview.Padding = new Padding(3);
+            tabReview.Name = "tabReview";
             tabReview.Controls.Add(dgvReview);
             dgvReview.Dock = DockStyle.Fill;
 
-            // ── tabTesting ────────────────────────────────────
-            tabTesting.Text    = "🧪 Testing (0)";
+            tabTesting.BackColor = System.Drawing.Color.White;
+            tabTesting.Text = "🧪  Testing (0)";
             tabTesting.Padding = new Padding(3);
+            tabTesting.Name = "tabTesting";
             tabTesting.Controls.Add(dgvTesting);
             dgvTesting.Dock = DockStyle.Fill;
 
             // ════════════════════════════════════════════════════
             // TabControl
             // ════════════════════════════════════════════════════
-            tabControl.Dock     = DockStyle.Fill;
-            tabControl.Font     = new Font("Segoe UI", 10F);
-            tabControl.ItemSize = new Size(160, 30); // Tab rộng hơn để đủ chỗ cho icon + text
+            tabControl.Dock = DockStyle.Fill;
+            tabControl.Font = new System.Drawing.Font("Segoe UI", 10F);
+            tabControl.ItemSize = new System.Drawing.Size(175, 32);
+            tabControl.Name = "tabControl";
             tabControl.TabPages.AddRange(new TabPage[] { tabMyTasks, tabReview, tabTesting });
 
             // ════════════════════════════════════════════════════
             // Form
             // ════════════════════════════════════════════════════
-            this.Text          = "Công việc của tôi";
-            this.Size          = new Size(1000, 620);
-            this.MinimumSize   = new Size(800, 480);
+            this.Text = "📋  Công việc của tôi";
+            this.Size = new System.Drawing.Size(1000, 660);
+            this.MinimumSize = new System.Drawing.Size(800, 500);
+            this.Name = "frmMyTasks";
             this.StartPosition = FormStartPosition.CenterScreen;
-            this.Font          = new Font("Segoe UI", 9.5F);
+            this.Font = UIHelper.FontBase;
 
-            this.Controls.Add(tabControl);  // Fill — đặt trước Panel
-            this.Controls.Add(panelTop);    // Dock Top
-            this.Controls.Add(panelBottom); // Dock Bottom
+            // Thứ tự Add: Fill trước → Bottom → Top (ngược chiều Dock)
+            this.Controls.Add(tabControl);    // DockStyle.Fill
+            this.Controls.Add(panelStatus);   // DockStyle.Bottom
+            this.Controls.Add(panelFilter);   // DockStyle.Top (thứ hai)
+            this.Controls.Add(panelHeader);   // DockStyle.Top (trên cùng)
 
-            panelTop.ResumeLayout(false);
-            panelBottom.ResumeLayout(false);
+            panelHeader.ResumeLayout(false);
+            panelFilter.ResumeLayout(false);
+            panelStatus.ResumeLayout(false);
             tabControl.ResumeLayout(false);
             tabMyTasks.ResumeLayout(false);
             tabReview.ResumeLayout(false);
@@ -144,88 +205,83 @@ namespace TaskFlowManagement.WinForms.Forms
         }
 
         /// <summary>
-        /// Cấu hình DataGridView theo chuẩn chung của GD4.
+        /// Cấu hình DataGridView theo chuẩn chung — gọi UIHelper thay vì hard-code.
         /// Gọi cho cả 3 grid để tránh lặp code.
-        /// Tất cả cột đều dùng tên prefix "col" để BindGrid() tham chiếu.
         /// </summary>
         private static void ConfigureTaskGrid(DataGridView dgv)
         {
-            dgv.AutoGenerateColumns   = false;
-            dgv.SelectionMode         = DataGridViewSelectionMode.FullRowSelect;
-            dgv.MultiSelect           = false;
-            dgv.ReadOnly              = true;
-            dgv.AllowUserToAddRows    = false;
-            dgv.AllowUserToDeleteRows = false;
-            dgv.RowHeadersVisible     = false;
-            dgv.Font                  = new Font("Segoe UI", 9.5F);
-            dgv.ColumnHeadersHeight   = 36;
-            dgv.RowTemplate.Height    = 30;
+            // [REFACTOR] Dùng UIHelper thay vì set từng thuộc tính thủ công
+            UIHelper.StyleDataGridView(dgv);
+            UIHelper.ApplyAlternateRowColors(dgv);
 
-            // ── Định nghĩa cột ────────────────────────────────
+            dgv.RowTemplate.Height = 32;
+
+            // ── Định nghĩa cột ────────────────────────────────────
             var colId = new DataGridViewTextBoxColumn
             {
-                Name        = "colId",
-                HeaderText  = "ID",
-                Width       = 50,
-                Visible     = false  // ẩn, chỉ dùng để tra Id khi xử lý sự kiện
+                Name = "colId",
+                HeaderText = "ID",
+                Width = 50,
+                Visible = false
             };
             var colTitle = new DataGridViewTextBoxColumn
             {
-                Name         = "colTitle",
-                HeaderText   = "Tiêu đề công việc",
+                Name = "colTitle",
+                HeaderText = "Tiêu đề công việc",
                 AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
                 MinimumWidth = 200
             };
             var colProject = new DataGridViewTextBoxColumn
             {
-                Name       = "colProject",
+                Name = "colProject",
                 HeaderText = "Dự án",
-                Width      = 140
+                Width = 150
             };
             var colPriority = new DataGridViewTextBoxColumn
             {
-                Name       = "colPriority",
+                Name = "colPriority",
                 HeaderText = "Ưu tiên",
-                Width      = 85
+                Width = 85
             };
             var colStatus = new DataGridViewTextBoxColumn
             {
-                Name       = "colStatus",
+                Name = "colStatus",
                 HeaderText = "Trạng thái",
-                Width      = 110
+                Width = 120
             };
             var colProgress = new DataGridViewTextBoxColumn
             {
-                Name       = "colProgress",
+                Name = "colProgress",
                 HeaderText = "%",
-                Width      = 55,
+                Width = 55,
                 DefaultCellStyle = { Alignment = DataGridViewContentAlignment.MiddleCenter }
             };
             var colDueDate = new DataGridViewTextBoxColumn
             {
-                Name       = "colDueDate",
+                Name = "colDueDate",
                 HeaderText = "Hạn chót",
-                Width      = 95
+                Width = 100
             };
 
             dgv.Columns.AddRange(new DataGridViewColumn[]
-            {
-                colId, colTitle, colProject, colPriority, colStatus, colProgress, colDueDate
-            });
+            { colId, colTitle, colProject, colPriority, colStatus, colProgress, colDueDate });
         }
 
-        // ── Khai báo biến — theo quy ước Designer để cuối file ──
-        private Panel      panelTop;
-        private Panel      panelBottom;
+        // ── Field declarations ────────────────────────────────────────────────
+        private Panel panelHeader;
+        private Panel panelAccentLine;
+        private Label lblHeader;
+        private Panel panelFilter;
+        private Label lblUser;
+        private Button btnRefresh;
         private TabControl tabControl;
-        private TabPage    tabMyTasks;
-        private TabPage    tabReview;
-        private TabPage    tabTesting;
+        private TabPage tabMyTasks;
+        private TabPage tabReview;
+        private TabPage tabTesting;
         private DataGridView dgvMyTasks;
         private DataGridView dgvReview;
         private DataGridView dgvTesting;
-        private Label      lblUser;
-        private Label      lblStatus;
-        private Button     btnRefresh;
+        private Panel panelStatus;
+        private Label lblStatus;
     }
 }

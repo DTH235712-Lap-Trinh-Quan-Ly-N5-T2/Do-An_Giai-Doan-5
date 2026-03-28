@@ -1,9 +1,10 @@
 using TaskFlowManagement.Core.Entities;
 using TaskFlowManagement.Core.Interfaces;
+using TaskFlowManagement.WinForms.Common;
 
 namespace TaskFlowManagement.WinForms.Forms
 {
-    public partial class frmCustomers : Form
+    public partial class frmCustomers : BaseForm
     {
         private readonly ICustomerRepository _customerRepo;
         private List<Customer> _allCustomers = new();
@@ -32,7 +33,7 @@ namespace TaskFlowManagement.WinForms.Forms
 
         private async Task LoadAllAsync()
         {
-            SetStatus("Đang tải...");
+            SetStatus("⏳  Đang tải...");
             _allCustomers = await _customerRepo.GetAllAsync();
             BindGrid(_allCustomers);
             SetStatus($"Tổng: {_allCustomers.Count} khách hàng");
@@ -47,11 +48,7 @@ namespace TaskFlowManagement.WinForms.Forms
         private async Task SearchAsync()
         {
             var kw = txtSearch.Text.Trim();
-            if (string.IsNullOrEmpty(kw))
-            {
-                BindGrid(_allCustomers);
-                return;
-            }
+            if (string.IsNullOrEmpty(kw)) { BindGrid(_allCustomers); return; }
             var results = await _customerRepo.SearchAsync(kw);
             BindGrid(results);
             SetStatus($"Tìm thấy: {results.Count} kết quả");
@@ -60,17 +57,14 @@ namespace TaskFlowManagement.WinForms.Forms
         private void BindGrid(List<Customer> list)
         {
             _displayedCustomers = list;
-            _selectedCustomer   = null;
+            _selectedCustomer = null;
             dgvCustomers.Rows.Clear();
             foreach (var c in list)
             {
                 dgvCustomers.Rows.Add(
-                    c.Id,
-                    c.CompanyName,
-                    c.ContactName ?? "",
-                    c.Email       ?? "",
-                    c.Phone       ?? "",
-                    c.Address     ?? "",
+                    c.Id, c.CompanyName,
+                    c.ContactName ?? "", c.Email ?? "",
+                    c.Phone ?? "", c.Address ?? "",
                     c.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy"));
             }
             lblCount.Text = $"{list.Count} khách hàng";
@@ -80,11 +74,7 @@ namespace TaskFlowManagement.WinForms.Forms
         private void dgvCustomers_SelectionChanged(object sender, EventArgs e)
         {
             if (dgvCustomers.SelectedRows.Count == 0)
-            {
-                _selectedCustomer = null;
-                UpdateButtons();
-                return;
-            }
+            { _selectedCustomer = null; UpdateButtons(); return; }
             int id = (int)dgvCustomers.SelectedRows[0].Cells["colCustId"].Value;
             _selectedCustomer = _displayedCustomers.FirstOrDefault(c => c.Id == id);
             UpdateButtons();
@@ -93,7 +83,7 @@ namespace TaskFlowManagement.WinForms.Forms
         private void UpdateButtons()
         {
             bool sel = _selectedCustomer != null;
-            btnEdit.Enabled   = sel;
+            btnEdit.Enabled = sel;
             btnDelete.Enabled = sel;
             btnDetail.Enabled = sel;
         }
@@ -101,28 +91,23 @@ namespace TaskFlowManagement.WinForms.Forms
         private void btnAdd_Click(object sender, EventArgs e)
         {
             using var dlg = new frmCustomerEdit(_customerRepo, null);
-            if (dlg.ShowDialog(this) == DialogResult.OK)
-                _ = LoadAllAsync();
+            if (dlg.ShowDialog(this) == DialogResult.OK) _ = LoadAllAsync();
         }
 
         private void btnEdit_Click(object sender, EventArgs e)
         {
             if (_selectedCustomer == null) return;
             using var dlg = new frmCustomerEdit(_customerRepo, _selectedCustomer);
-            if (dlg.ShowDialog(this) == DialogResult.OK)
-                _ = LoadAllAsync();
+            if (dlg.ShowDialog(this) == DialogResult.OK) _ = LoadAllAsync();
         }
 
         private async void btnDelete_Click(object sender, EventArgs e)
         {
             if (_selectedCustomer == null) return;
-
             var confirm = MessageBox.Show(
-                $"Xóa khách hàng  \"{_selectedCustomer.CompanyName}\"?\n\n" +
+                $"Xóa khách hàng \"{_selectedCustomer.CompanyName}\"?\n\n" +
                 "⚠️  Lưu ý: Chỉ xóa được nếu khách hàng chưa có dự án nào.",
-                "Xác nhận xóa",
-                MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-
+                "Xác nhận xóa", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
             if (confirm != DialogResult.Yes) return;
 
             try
@@ -135,10 +120,6 @@ namespace TaskFlowManagement.WinForms.Forms
             }
             catch (Exception ex)
             {
-                // BUG FIX: Thêm ngoặc đơn để ?? operator hoạt động đúng
-                // Trước đây: "Chi tiết: " + ex.InnerException?.Message ?? ex.Message
-                // → string + null = string, rồi string ?? ex.Message = string (luôn truthy)
-                // Kết quả sai: hiện "Chi tiết: " thay vì ex.Message khi InnerException == null
                 MessageBox.Show(
                     "Không thể xóa vì khách hàng còn dự án liên quan.\n\n" +
                     "Chi tiết: " + (ex.InnerException?.Message ?? ex.Message),
@@ -149,51 +130,30 @@ namespace TaskFlowManagement.WinForms.Forms
         private async void btnDetail_Click(object sender, EventArgs e)
         {
             if (_selectedCustomer == null) return;
-
             var customer = await _customerRepo.GetWithProjectsAsync(_selectedCustomer.Id);
-            if (customer == null)
-            {
-                MessageBox.Show("Không tìm thấy khách hàng.", "Lỗi",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
+            if (customer == null) { MessageBox.Show("Không tìm thấy khách hàng.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
 
             var count = customer.Projects?.Count ?? 0;
             if (count == 0)
-            {
-                MessageBox.Show($"\"{customer.CompanyName}\" chưa có dự án nào.",
-                    "Chi tiết khách hàng", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
+            { MessageBox.Show($"\"{customer.CompanyName}\" chưa có dự án nào.", "Chi tiết khách hàng", MessageBoxButtons.OK, MessageBoxIcon.Information); return; }
 
             var lines = customer.Projects!
                 .OrderByDescending(p => p.CreatedAt)
                 .Select(p => $"  📁  {p.Name}  —  {p.Status}  (PM: {p.Owner?.FullName ?? "?"})");
 
             MessageBox.Show(
-                $"Khách hàng: {customer.CompanyName}\n" +
-                $"Tổng dự án: {count}\n\n" +
-                string.Join("\n", lines),
+                $"Khách hàng: {customer.CompanyName}\nTổng dự án: {count}\n\n" + string.Join("\n", lines),
                 "Danh sách dự án", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void dgvCustomers_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
-        {
-            if (e.RowIndex >= 0) btnEdit_Click(sender, e);
-        }
+        { if (e.RowIndex >= 0) btnEdit_Click(sender, e); }
 
         private async void btnRefresh_Click(object sender, EventArgs e)
-        {
-            txtSearch.Clear();
-            await LoadAllAsync();
-        }
+        { txtSearch.Clear(); await LoadAllAsync(); }
 
         protected override void OnFormClosed(FormClosedEventArgs e)
-        {
-            _searchTimer.Stop();
-            _searchTimer.Dispose();
-            base.OnFormClosed(e);
-        }
+        { _searchTimer.Stop(); _searchTimer.Dispose(); base.OnFormClosed(e); }
 
         private void SetStatus(string msg) => lblStatus.Text = msg;
     }

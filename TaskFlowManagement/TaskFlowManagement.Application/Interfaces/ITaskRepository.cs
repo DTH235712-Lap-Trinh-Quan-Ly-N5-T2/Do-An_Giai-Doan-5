@@ -121,5 +121,7 @@ namespace TaskFlowManagement.Core.Interfaces
 
         /// <summary>Lấy tất cả Category (Bug/Feature/...).</summary>
         Task<List<Category>> GetAllCategoriesAsync();
+
+        Task<List<TaskItem>> GetAllByProjectAsync(int projectId);
     }
 }

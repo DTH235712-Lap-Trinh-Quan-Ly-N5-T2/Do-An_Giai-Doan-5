@@ -1,6 +1,7 @@
 using TaskFlowManagement.Core.Entities;
 using TaskFlowManagement.Core.Interfaces;
 using TaskFlowManagement.Core.Interfaces.Services;
+using TaskFlowManagement.Core.Constants;
 
 // Namespace "Tasks" (số nhiều) vì "Task" trùng System.Threading.Tasks.Task
 namespace TaskFlowManagement.Core.Services.Tasks
@@ -26,8 +27,13 @@ namespace TaskFlowManagement.Core.Services.Tasks
     public class TaskService : ITaskService
     {
         private readonly ITaskRepository _taskRepo;
+        private readonly IUserRepository _userRepo;
 
-        public TaskService(ITaskRepository taskRepo) => _taskRepo = taskRepo;
+        public TaskService(ITaskRepository taskRepo, IUserRepository userRepo)
+        {
+            _taskRepo = taskRepo ?? throw new ArgumentNullException(nameof(taskRepo));
+            _userRepo = userRepo ?? throw new ArgumentNullException(nameof(userRepo));
+        }
 
         // ══════════════════════════════════════════════════════
         // TRUY VẤN — giữ nguyên 100%
@@ -65,35 +71,16 @@ namespace TaskFlowManagement.Core.Services.Tasks
         public Task<Dictionary<string, int>> GetStatusSummaryAsync(int projectId)
             => _taskRepo.GetStatusSummaryByProjectAsync(projectId);
 
-        public async Task<List<TaskItem>> GetBoardTasksAsync(int projectId)
+        public Task<List<TaskItem>> GetAllByProjectAsync(int projectId)
         {
-            int page = 1;
-            int pageSize = 200;
-            var allTasks = new List<TaskItem>();
-
-            // Gom tất cả task của Project này
-            while (true)
-            {
-                var (items, totalCount) = await _taskRepo.GetPagedAsync(
-                    page: page,
-                    pageSize: pageSize,
-                    projectId: projectId);
-
-                if (items.Count == 0) break;
-
-                allTasks.AddRange(items);
-
-                if (allTasks.Count >= totalCount || items.Count < pageSize) break;
-
-                page++;
-            }
-
-            // 🚀 ÁP DỤNG LOGIC SẮP XẾP CHUẨN KANBAN (LINQ)
-            return allTasks
-                .OrderByDescending(t => t.PriorityId) // Tiêu chí 1: Critical (4), High (3) lên đầu
-                .ThenBy(t => t.DueDate ?? DateTime.MaxValue) // Tiêu chí 2: Gần hạn lên đầu, Null đẩy xuống cuối
-                .ToList();
+            return _taskRepo.GetByProjectAsync(projectId);
         }
+
+        public Task<List<TaskItem>> GetBoardTasksAsync(int projectId)
+        {
+            return _taskRepo.GetByProjectAsync(projectId);
+        }
+
         // ══════════════════════════════════════════════════════
         // CRUD
         // ══════════════════════════════════════════════════════
@@ -143,25 +130,15 @@ namespace TaskFlowManagement.Core.Services.Tasks
         /// </summary>
         public async Task<(bool Success, string Message)> UpdateTaskAsync(TaskItem task)
         {
-            // 1. Validation cơ bản
             if (string.IsNullOrWhiteSpace(task.Title))
                 return (false, "Tiêu đề công việc không được để trống.");
 
+            task.Title = task.Title.Trim();
+            task.Description = string.IsNullOrWhiteSpace(task.Description) ? null : task.Description.Trim();
+
             try
             {
-                // 2. Làm sạch dữ liệu
-                task.Title = task.Title.Trim();
-                task.Description = string.IsNullOrWhiteSpace(task.Description) ? null : task.Description.Trim();
-
-                // 3. CẬP NHẬT TỔNG THỂ (Quan trọng)
-                // Thay vì gọi 2 hàm tách biệt, hãy dùng UpdateAsync để EF tự quản lý 
-                // hoặc kiểm tra lại hàm UpdateStatusAsync trong Repository của bạn.
-
-                await _taskRepo.UpdateAsync(task);
-
-                // Đảm bảo StatusId được cập nhật cuối cùng nếu UpdateAsync gặp vấn đề với Navigation Property
-                await _taskRepo.UpdateStatusAsync(task.Id, task.StatusId);
-
+                await _taskRepo.UpdateAsync(task); // ← Một lần duy nhất, đúng hoàn toàn
                 return (true, "Cập nhật công việc thành công.");
             }
             catch (Exception ex)
@@ -187,23 +164,15 @@ namespace TaskFlowManagement.Core.Services.Tasks
         // ══════════════════════════════════════════════════════
         // CẬP NHẬT TIẾN ĐỘ
         // ══════════════════════════════════════════════════════
-
+        
+        private const int ResolvedStatusId = 9;
+        private const int ClosedStatusId = 10;
         public async Task<(bool Success, string Message)> UpdateProgressAsync(
             int taskId, byte progress)
         {
             if (progress > 100)
                 return (false, "Tiến độ phải từ 0 đến 100.");
-
-            // Lookup Id của RESOLVED từ DB — không hard-code
-            // Theo seed: RESOLVED = DisplayOrder 8, thứ 9 trong list → Id=9
-            var statuses       = await _taskRepo.GetAllStatusesAsync();
-            var resolvedStatus = statuses.FirstOrDefault(
-                s => s.Name.Equals("RESOLVED", StringComparison.OrdinalIgnoreCase));
-
-            if (resolvedStatus == null)
-                return (false, "Không tìm thấy trạng thái RESOLVED trong hệ thống.");
-
-            await _taskRepo.UpdateProgressAsync(taskId, progress, resolvedStatus.Id);
+            await _taskRepo.UpdateProgressAsync(taskId, progress, ResolvedStatusId);
 
             return progress == 100
                 ? (true, "🎉 Công việc đã hoàn thành! Trạng thái chuyển sang RESOLVED.")
@@ -231,48 +200,35 @@ namespace TaskFlowManagement.Core.Services.Tasks
         ///   nếu source nào đó trả về "admin", "MANAGER", "developer"...
         /// </summary>
         public async Task<(bool Success, string Message)> UpdateStatusAsync(
-            int           taskId,
-            int           statusId,
-            int           requesterId,
-            IList<string> requesterRoles)
+            int taskId, int statusId,
+            int requesterId, IList<string> requesterRoles)
         {
-            // ── Validate statusId ─────────────────────────────
-            if (statusId <= 0)
-                return (false, "Vui lòng chọn trạng thái hợp lệ.");
+            // Validate nhanh bằng range (seed data: 1-10)
+            if (statusId is < 1 or > 10)
+                return (false, $"Trạng thái không hợp lệ (Id={statusId}). Phải từ 1 đến 10.");
 
-            var statuses = await _taskRepo.GetAllStatusesAsync();
-            var target   = statuses.FirstOrDefault(s => s.Id == statusId);
-            if (target == null)
-                return (false, $"Trạng thái không tồn tại (Id={statusId}).");
-
-            // ── Admin/Manager: bỏ qua mọi kiểm tra ──────────
-            // So sánh OrdinalIgnoreCase: "Admin"/"admin"/"ADMIN" đều match
+            // Lấy tên status để hiển thị message — chỉ khi cần (sau khi auth pass)
             bool isManagerOrAbove =
-                requesterRoles.Any(r => r.Equals("Admin",   StringComparison.OrdinalIgnoreCase)) ||
-                requesterRoles.Any(r => r.Equals("Manager", StringComparison.OrdinalIgnoreCase));
+                requesterRoles.Any(r => r.Equals("Admin", StringComparison.OrdinalIgnoreCase) ||
+                                        r.Equals("Manager", StringComparison.OrdinalIgnoreCase));
 
             if (isManagerOrAbove)
             {
-                // ExecuteUpdateAsync: SET StatusId=? WHERE Id=? — không cần load entity
                 await _taskRepo.UpdateStatusAsync(taskId, statusId);
-                return (true, $"Đã chuyển trạng thái sang \"{target.Name}\".");
+                return (true, $"Đã chuyển trạng thái sang \"{WorkflowConstants.GetStatusName(statusId)}\".");
             }
 
-            // ── Developer: phải load task để kiểm tra quyền ─
             var task = await _taskRepo.GetByIdAsync(taskId);
             if (task == null)
                 return (false, "Không tìm thấy công việc.");
 
-            bool isAssignee = task.AssignedToId.HasValue
-                           && task.AssignedToId.Value == requesterId;
-
-            if (!isAssignee)
+            if (task.AssignedToId != requesterId)
                 return (false,
                     "Bạn chỉ có thể thay đổi trạng thái công việc được giao cho mình.\n" +
                     "Liên hệ Manager nếu cần thay đổi task khác.");
 
             await _taskRepo.UpdateStatusAsync(taskId, statusId);
-            return (true, $"Đã chuyển trạng thái sang \"{target.Name}\".");
+            return (true, $"Đã chuyển trạng thái sang \"{WorkflowConstants.GetStatusName(statusId)}\".");
         }
 
         // ══════════════════════════════════════════════════════
@@ -298,12 +254,32 @@ namespace TaskFlowManagement.Core.Services.Tasks
             if (task == null)
                 return (false, "Không tìm thấy công việc.");
 
-            if (reviewer1Id.HasValue && reviewer1Id.Value <= 0)
-                return (false, "Reviewer lần 1 không hợp lệ.");
-            if (reviewer2Id.HasValue && reviewer2Id.Value <= 0)
-                return (false, "Reviewer lần 2 không hợp lệ.");
-            if (testerId.HasValue && testerId.Value <= 0)
-                return (false, "Tester không hợp lệ.");
+            if (reviewer1Id.HasValue)
+            {
+                if (reviewer1Id.Value <= 0)
+                    return (false, "Reviewer lần 1 không hợp lệ.");
+                var r1 = await _userRepo.GetByIdAsync(reviewer1Id.Value);
+                if (r1 == null || !r1.IsActive)
+                    return (false, $"Reviewer 1 (Id={reviewer1Id.Value}) không tồn tại hoặc đã bị khóa.");
+            }
+
+            if (reviewer2Id.HasValue)
+            {
+                if (reviewer2Id.Value <= 0)
+                    return (false, "Reviewer lần 2 không hợp lệ.");
+                var r2 = await _userRepo.GetByIdAsync(reviewer2Id.Value);
+                if (r2 == null || !r2.IsActive)
+                    return (false, $"Reviewer 2 (Id={reviewer2Id.Value}) không tồn tại hoặc đã bị khóa.");
+            }
+
+            if (testerId.HasValue)
+            {
+                if (testerId.Value <= 0)
+                    return (false, "Tester không hợp lệ.");
+                var t = await _userRepo.GetByIdAsync(testerId.Value);
+                if (t == null || !t.IsActive)
+                    return (false, $"Tester (Id={testerId.Value}) không tồn tại hoặc đã bị khóa.");
+            }
 
             await _taskRepo.AssignReviewerAsync(
                 taskId, reviewer1Id, reviewer2Id, testerId, target.Id);

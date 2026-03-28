@@ -166,6 +166,97 @@ namespace TaskFlowManagement.Infrastructure.Data
             modelBuilder.Entity<Comment>().HasIndex(c => c.TaskItemId).HasDatabaseName("IX_Comments_TaskItemId");
             modelBuilder.Entity<Expense>().HasIndex(e => e.ProjectId).HasDatabaseName("IX_Expenses_ProjectId");
             modelBuilder.Entity<ProjectMember>().HasIndex(pm => pm.UserId).HasDatabaseName("IX_ProjectMembers_UserId");
+
+            // ProgressPercent: BYTE nên tối đa 255 nhưng business rule là 0-100
+            modelBuilder.Entity<TaskItem>()
+                .ToTable(tb => tb.HasCheckConstraint(
+                    "CK_TaskItems_ProgressPercent",
+                    "[ProgressPercent] BETWEEN 0 AND 100"));
+
+            // EstimatedHours & ActualHours phải dương nếu có
+            modelBuilder.Entity<TaskItem>()
+                .ToTable(tb => tb.HasCheckConstraint(
+                    "CK_TaskItems_EstimatedHours",
+                    "[EstimatedHours] IS NULL OR [EstimatedHours] > 0"));
+
+            modelBuilder.Entity<TaskItem>()
+                .ToTable(tb => tb.HasCheckConstraint(
+                    "CK_TaskItems_ActualHours",
+                    "[ActualHours] IS NULL OR [ActualHours] > 0"));
+
+            // Expense.Amount phải dương
+            modelBuilder.Entity<Expense>()
+                .ToTable(tb => tb.HasCheckConstraint(
+                    "CK_Expenses_Amount",
+                    "[Amount] > 0"));
+
+            // Project.Budget không âm
+            modelBuilder.Entity<Project>()
+                .ToTable(tb => tb.HasCheckConstraint(
+                    "CK_Projects_Budget",
+                    "[Budget] >= 0"));
+
+            // Project.Priority chỉ 1-4
+            modelBuilder.Entity<Project>()
+                .ToTable(tb => tb.HasCheckConstraint(
+                    "CK_Projects_Priority",
+                    "[Priority] BETWEEN 1 AND 4"));
+
+            // Project.Status chỉ được là các giá trị định nghĩa sẵn
+            modelBuilder.Entity<Project>()
+                .ToTable(tb => tb.HasCheckConstraint(
+                    "CK_Projects_Status",
+                    "[Status] IN ('NotStarted','InProgress','OnHold','Completed','Cancelled')"));
+
+            // Priority.Level chỉ 1-4
+            modelBuilder.Entity<Priority>()
+                .ToTable(tb => tb.HasCheckConstraint(
+                    "CK_Priorities_Level",
+                    "[Level] BETWEEN 1 AND 4"));
+
+            modelBuilder.Entity<Status>()
+           .HasIndex(s => s.Name).IsUnique()
+           .HasDatabaseName("UQ_Statuses_Name");
+
+            modelBuilder.Entity<Status>()
+                .HasIndex(s => s.DisplayOrder).IsUnique()
+                .HasDatabaseName("UQ_Statuses_DisplayOrder");
+
+            modelBuilder.Entity<Category>()
+                .HasIndex(c => c.Name).IsUnique()
+                .HasDatabaseName("UQ_Categories_Name");
+
+            modelBuilder.Entity<Priority>()
+                .HasIndex(p => p.Name).IsUnique()
+                .HasDatabaseName("UQ_Priorities_Name");
+
+            modelBuilder.Entity<Priority>()
+                .HasIndex(p => p.Level).IsUnique()
+                .HasDatabaseName("UQ_Priorities_Level");
+
+            modelBuilder.Entity<Role>()
+                .HasIndex(r => r.Name).IsUnique()
+                .HasDatabaseName("UQ_Roles_Name");
+
+            // ═══════════════════════════════════════════════════════
+            // Mục 8: DeleteBehavior cho Attachment & Comment
+            // ═══════════════════════════════════════════════════════
+            modelBuilder.Entity<Attachment>()
+                .HasOne(a => a.TaskItem).WithMany(t => t.Attachments)
+                .HasForeignKey(a => a.TaskItemId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Comment>()
+                .HasOne(c => c.TaskItem).WithMany(t => t.Comments)
+                .HasForeignKey(c => c.TaskItemId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Comment>()
+                .HasOne(c => c.User).WithMany(u => u.Comments)
+                .HasForeignKey(c => c.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+            
+
         }
     }
 }

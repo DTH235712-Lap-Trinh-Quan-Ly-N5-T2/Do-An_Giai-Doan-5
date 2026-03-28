@@ -19,7 +19,10 @@ namespace TaskFlowManagement.Infrastructure.Repositories
         private readonly IDbContextFactory<AppDbContext> _contextFactory;
 
         public TaskRepository(IDbContextFactory<AppDbContext> contextFactory)
-            => _contextFactory = contextFactory;
+        {
+            _contextFactory = contextFactory
+                ?? throw new ArgumentNullException(nameof(contextFactory));
+        }
 
         // ════════════════════════════════════════════════════════
         // CRUD CƠ BẢN
@@ -97,18 +100,42 @@ namespace TaskFlowManagement.Infrastructure.Repositories
         /// Cập nhật task — bảo vệ CreatedAt không bị ghi đè.
         /// Dùng Attach + State.Modified + IsModified = false cho cột cần bảo vệ.
         /// </summary>
-        public async Task UpdateAsync(TaskItem task)
+        /// 
+        public async Task<List<TaskItem>> GetAllByProjectAsync(int projectId)
         {
             using var ctx = _contextFactory.CreateDbContext();
+            return await ctx.TaskItems
+                .AsNoTracking()
+                .Where(t => t.ProjectId == projectId)
+                .Include(t => t.AssignedTo)
+                .Include(t => t.Priority)
+                .Include(t => t.Status)
+                .OrderByDescending(t => t.PriorityId)
+                .ThenBy(t => t.DueDate == null)
+                .ThenBy(t => t.DueDate)
+                .ToListAsync();
+        }
 
-            // Đánh dấu toàn bộ đối tượng là Modified để EF sinh SQL UPDATE cho tất cả các cột
-            ctx.Entry(task).State = EntityState.Modified;
-
-            // Nếu bạn muốn bảo vệ cột CreatedAt không bị ghi đè (thường là null khi từ Form gửi về)
-            ctx.Entry(task).Property(x => x.CreatedAt).IsModified = false;
-            ctx.Entry(task).Property(x => x.CreatedById).IsModified = false;
-
-            await ctx.SaveChangesAsync();
+        public async Task UpdateAsync(TaskItem task)
+        {
+            using var ctx = _contextFactory.CreateDbContext(); // ← tạo context mới
+            await ctx.TaskItems
+                .Where(t => t.Id == task.Id)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(t => t.Title, task.Title)
+                    .SetProperty(t => t.Description, task.Description)
+                    .SetProperty(t => t.StatusId, task.StatusId)
+                    .SetProperty(t => t.PriorityId, task.PriorityId)
+                    .SetProperty(t => t.CategoryId, task.CategoryId)
+                    .SetProperty(t => t.AssignedToId, task.AssignedToId)
+                    .SetProperty(t => t.Reviewer1Id, task.Reviewer1Id)
+                    .SetProperty(t => t.Reviewer2Id, task.Reviewer2Id)
+                    .SetProperty(t => t.TesterId, task.TesterId)
+                    .SetProperty(t => t.DueDate, task.DueDate)
+                    .SetProperty(t => t.EstimatedHours, task.EstimatedHours)
+                    .SetProperty(t => t.ProgressPercent, task.ProgressPercent)
+                    .SetProperty(t => t.IsCompleted, task.IsCompleted)
+                    .SetProperty(t => t.UpdatedAt, DateTime.UtcNow));
         }
 
         /// <summary>Xóa task (hard delete) — cascade xóa Comments, Attachments, TaskTags.</summary>
@@ -336,30 +363,30 @@ namespace TaskFlowManagement.Infrastructure.Repositories
         /// resolvedStatusId: ID của Status có Name = "RESOLVED" (truyền vào từ Service
         /// sau khi lookup từ DB, tránh hard-code ID).
         /// </summary>
-        public async Task UpdateProgressAsync(int taskId, byte progressPercent, int resolvedStatusId)
+        public async Task UpdateProgressAsync(int taskId, byte progress, int resolvedStatusId)
         {
-            using var ctx = _contextFactory.CreateDbContext();
-
-            var isCompleted = progressPercent == 100;
-            var completedAt = isCompleted ? (DateTime?)DateTime.UtcNow : null;
-
-            // Call 1: luôn chạy — update progress, isCompleted, timestamp
-            await ctx.TaskItems
-                .Where(t => t.Id == taskId)
-                .ExecuteUpdateAsync(s => s
-                    .SetProperty(t => t.ProgressPercent, progressPercent)
-                    .SetProperty(t => t.IsCompleted, isCompleted)
-                    .SetProperty(t => t.UpdatedAt, DateTime.UtcNow)
-                    .SetProperty(t => t.CompletedAt, completedAt));
-
-            // Call 2: chỉ chạy khi hoàn thành — chuyển Status sang RESOLVED
-            // Tách riêng vì EF Core không cho phép tham chiếu t.StatusId
-            // trong phần value của SetProperty (không dịch được sang SQL SET clause)
-            if (isCompleted)
+            using var ctx = _contextFactory.CreateDbContext(); // ← tạo context mới
+            if (progress == 100)
+            {
                 await ctx.TaskItems
                     .Where(t => t.Id == taskId)
-                    .ExecuteUpdateAsync(s => s
-                        .SetProperty(t => t.StatusId, resolvedStatusId));
+                    .ExecuteUpdateAsync(setters => setters
+                        .SetProperty(t => t.ProgressPercent, progress)
+                        .SetProperty(t => t.IsCompleted, true)
+                        .SetProperty(t => t.StatusId, resolvedStatusId)
+                        .SetProperty(t => t.CompletedAt, DateTime.UtcNow)
+                        .SetProperty(t => t.UpdatedAt, DateTime.UtcNow));
+            }
+            else
+            {
+                await ctx.TaskItems
+                    .Where(t => t.Id == taskId)
+                    .ExecuteUpdateAsync(setters => setters
+                        .SetProperty(t => t.ProgressPercent, progress)
+                        .SetProperty(t => t.IsCompleted, false)
+                        .SetProperty(t => t.CompletedAt, (DateTime?)null)
+                        .SetProperty(t => t.UpdatedAt, DateTime.UtcNow));
+            }
         }
 
         /// <summary>
@@ -387,39 +414,29 @@ namespace TaskFlowManagement.Infrastructure.Repositories
         ///   - 0–3 call tùy chọn: Reviewer1Id / Reviewer2Id / TesterId
         /// </summary>
         public async Task AssignReviewerAsync(
-            int taskId,
-            int? reviewer1Id,
-            int? reviewer2Id,
-            int? testerId,
-            int newStatusId)
+    int taskId,
+    int? reviewer1Id,
+    int? reviewer2Id,
+    int? testerId,
+    int newStatusId)
         {
             using var ctx = _contextFactory.CreateDbContext();
 
-            // Bắt buộc: chuyển trạng thái + cập nhật timestamp
-            await ctx.TaskItems
-                .Where(t => t.Id == taskId)
-                .ExecuteUpdateAsync(s => s
-                    .SetProperty(t => t.StatusId, newStatusId)
-                    .SetProperty(t => t.UpdatedAt, DateTime.UtcNow));
+            // 1. Chỉ Load entity (không load navigation để nhẹ nhất có thể)
+            var task = await ctx.TaskItems.FirstOrDefaultAsync(t => t.Id == taskId);
+            if (task == null) return;
 
-            // Tùy chọn: chỉ set khi được truyền vào — không ghi đè giá trị cũ nếu null
-            if (reviewer1Id.HasValue)
-                await ctx.TaskItems
-                    .Where(t => t.Id == taskId)
-                    .ExecuteUpdateAsync(s => s
-                        .SetProperty(t => t.Reviewer1Id, reviewer1Id.Value));
+            // 2. Gán giá trị mới
+            task.StatusId = newStatusId;
+            task.UpdatedAt = DateTime.UtcNow;
 
-            if (reviewer2Id.HasValue)
-                await ctx.TaskItems
-                    .Where(t => t.Id == taskId)
-                    .ExecuteUpdateAsync(s => s
-                        .SetProperty(t => t.Reviewer2Id, reviewer2Id.Value));
+            if (reviewer1Id.HasValue) task.Reviewer1Id = reviewer1Id.Value;
+            if (reviewer2Id.HasValue) task.Reviewer2Id = reviewer2Id.Value;
+            if (testerId.HasValue) task.TesterId = testerId.Value;
 
-            if (testerId.HasValue)
-                await ctx.TaskItems
-                    .Where(t => t.Id == taskId)
-                    .ExecuteUpdateAsync(s => s
-                        .SetProperty(t => t.TesterId, testerId.Value));
+            // 3. EF Core sẽ tự động so sánh và sinh ra đúng 1 câu SQL UPDATE
+            // cho những cột thực sự bị thay đổi.
+            await ctx.SaveChangesAsync();
         }
 
         // ════════════════════════════════════════════════════════
