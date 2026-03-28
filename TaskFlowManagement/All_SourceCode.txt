@@ -19,32 +19,34 @@ global using System.Threading.Tasks;
 --- FILE: WorkflowConstants.cs ---
 ========================================
 
-public static class WorkflowConstants
+namespace TaskFlowManagement.Core.Constants
 {
-    public static string GetStatusName(int id) => id switch
+    public static class WorkflowConstants
     {
-        1 => "CREATED",
-        2 => "ASSIGNED",
-        3 => "IN-PROGRESS",
-        4 => "FAILED",
-        5 => "REVIEW-1",
-        6 => "REVIEW-2",
-        7 => "APPROVED",
-        8 => "IN-TEST",
-        9 => "RESOLVED",
-        10 => "CLOSED",
-        _ => $"STATUS-{id}"
-    };
+        public static string GetStatusName(int id) => id switch
+        {
+            1 => "CREATED",
+            2 => "ASSIGNED",
+            3 => "IN-PROGRESS",
+            4 => "FAILED",
+            5 => "REVIEW-1",
+            6 => "REVIEW-2",
+            7 => "APPROVED",
+            8 => "IN-TEST",
+            9 => "RESOLVED",
+            10 => "CLOSED",
+            _ => $"STATUS-{id}"
+        };
 
-    // TH�M method n�y n?u chua c�:
-    public static string GetPriorityName(int id) => id switch
-    {
-        4 => "Critical",
-        3 => "High",
-        2 => "Medium",
-        1 => "Low",
-        _ => "Unknown"
-    };
+        public static string GetPriorityName(int id) => id switch
+        {
+            4 => "Critical",
+            3 => "High",
+            2 => "Medium",
+            1 => "Low",
+            _ => "Unknown"
+        };
+    }
 }
 
 
@@ -1729,6 +1731,7 @@ namespace TaskFlowManagement.Core.Services.Projects
 using TaskFlowManagement.Core.Entities;
 using TaskFlowManagement.Core.Interfaces;
 using TaskFlowManagement.Core.Interfaces.Services;
+using TaskFlowManagement.Core.Constants;
 
 // Namespace "Tasks" (số nhiều) vì "Task" trùng System.Threading.Tasks.Task
 namespace TaskFlowManagement.Core.Services.Tasks
@@ -1756,7 +1759,11 @@ namespace TaskFlowManagement.Core.Services.Tasks
         private readonly ITaskRepository _taskRepo;
         private readonly IUserRepository _userRepo;
 
-        public TaskService(ITaskRepository taskRepo) => _taskRepo = taskRepo;
+        public TaskService(ITaskRepository taskRepo, IUserRepository userRepo)
+        {
+            _taskRepo = taskRepo ?? throw new ArgumentNullException(nameof(taskRepo));
+            _userRepo = userRepo ?? throw new ArgumentNullException(nameof(userRepo));
+        }
 
         // ══════════════════════════════════════════════════════
         // TRUY VẤN — giữ nguyên 100%
@@ -1794,8 +1801,15 @@ namespace TaskFlowManagement.Core.Services.Tasks
         public Task<Dictionary<string, int>> GetStatusSummaryAsync(int projectId)
             => _taskRepo.GetStatusSummaryByProjectAsync(projectId);
 
+        public Task<List<TaskItem>> GetAllByProjectAsync(int projectId)
+        {
+            return _taskRepo.GetByProjectAsync(projectId);
+        }
+
         public Task<List<TaskItem>> GetBoardTasksAsync(int projectId)
-    => _taskRepo.GetAllByProjectAsync(projectId);
+        {
+            return _taskRepo.GetByProjectAsync(projectId);
+        }
 
         // ══════════════════════════════════════════════════════
         // CRUD
@@ -5726,12 +5740,12 @@ namespace TaskFlowManagement.Infrastructure.Repositories
     public class TaskRepository : ITaskRepository
     {
         private readonly IDbContextFactory<AppDbContext> _contextFactory;
-        private readonly AppDbContext _db;
-        private readonly AppDbContext _context;
-        private readonly AppDbContext _dbContext;
 
         public TaskRepository(IDbContextFactory<AppDbContext> contextFactory)
-            => _contextFactory = contextFactory;
+        {
+            _contextFactory = contextFactory
+                ?? throw new ArgumentNullException(nameof(contextFactory));
+        }
 
         // ════════════════════════════════════════════════════════
         // CRUD CƠ BẢN
@@ -5810,8 +5824,10 @@ namespace TaskFlowManagement.Infrastructure.Repositories
         /// Dùng Attach + State.Modified + IsModified = false cho cột cần bảo vệ.
         /// </summary>
         /// 
-        public Task<List<TaskItem>> GetAllByProjectAsync(int projectId)
-            => _db.TaskItems
+        public async Task<List<TaskItem>> GetAllByProjectAsync(int projectId)
+        {
+            using var ctx = _contextFactory.CreateDbContext();
+            return await ctx.TaskItems
                 .AsNoTracking()
                 .Where(t => t.ProjectId == projectId)
                 .Include(t => t.AssignedTo)
@@ -5821,11 +5837,12 @@ namespace TaskFlowManagement.Infrastructure.Repositories
                 .ThenBy(t => t.DueDate == null)
                 .ThenBy(t => t.DueDate)
                 .ToListAsync();
+        }
 
         public async Task UpdateAsync(TaskItem task)
         {
-            // Dùng ExecuteUpdateAsync: sinh SQL SET trực tiếp, không phụ thuộc tracking
-            await _context.TaskItems
+            using var ctx = _contextFactory.CreateDbContext(); // ← tạo context mới
+            await ctx.TaskItems
                 .Where(t => t.Id == task.Id)
                 .ExecuteUpdateAsync(setters => setters
                     .SetProperty(t => t.Title, task.Title)
@@ -6071,10 +6088,10 @@ namespace TaskFlowManagement.Infrastructure.Repositories
         /// </summary>
         public async Task UpdateProgressAsync(int taskId, byte progress, int resolvedStatusId)
         {
-            // Tách thành 2 trường hợp rõ ràng để tránh lỗi lambda
+            using var ctx = _contextFactory.CreateDbContext(); // ← tạo context mới
             if (progress == 100)
             {
-                await _db.TaskItems
+                await ctx.TaskItems
                     .Where(t => t.Id == taskId)
                     .ExecuteUpdateAsync(setters => setters
                         .SetProperty(t => t.ProgressPercent, progress)
@@ -6085,14 +6102,13 @@ namespace TaskFlowManagement.Infrastructure.Repositories
             }
             else
             {
-                await _db.TaskItems
+                await ctx.TaskItems
                     .Where(t => t.Id == taskId)
                     .ExecuteUpdateAsync(setters => setters
                         .SetProperty(t => t.ProgressPercent, progress)
                         .SetProperty(t => t.IsCompleted, false)
                         .SetProperty(t => t.CompletedAt, (DateTime?)null)
                         .SetProperty(t => t.UpdatedAt, DateTime.UtcNow));
-                // StatusId KHÔNG thay đổi khi progress < 100
             }
         }
 
@@ -6121,39 +6137,29 @@ namespace TaskFlowManagement.Infrastructure.Repositories
         ///   - 0–3 call tùy chọn: Reviewer1Id / Reviewer2Id / TesterId
         /// </summary>
         public async Task AssignReviewerAsync(
-            int taskId,
-            int? reviewer1Id,
-            int? reviewer2Id,
-            int? testerId,
-            int newStatusId)
+    int taskId,
+    int? reviewer1Id,
+    int? reviewer2Id,
+    int? testerId,
+    int newStatusId)
         {
             using var ctx = _contextFactory.CreateDbContext();
 
-            // Bắt buộc: chuyển trạng thái + cập nhật timestamp
-            await ctx.TaskItems
-                .Where(t => t.Id == taskId)
-                .ExecuteUpdateAsync(s => s
-                    .SetProperty(t => t.StatusId, newStatusId)
-                    .SetProperty(t => t.UpdatedAt, DateTime.UtcNow));
+            // 1. Chỉ Load entity (không load navigation để nhẹ nhất có thể)
+            var task = await ctx.TaskItems.FirstOrDefaultAsync(t => t.Id == taskId);
+            if (task == null) return;
 
-            // Tùy chọn: chỉ set khi được truyền vào — không ghi đè giá trị cũ nếu null
-            if (reviewer1Id.HasValue)
-                await ctx.TaskItems
-                    .Where(t => t.Id == taskId)
-                    .ExecuteUpdateAsync(s => s
-                        .SetProperty(t => t.Reviewer1Id, reviewer1Id.Value));
+            // 2. Gán giá trị mới
+            task.StatusId = newStatusId;
+            task.UpdatedAt = DateTime.UtcNow;
 
-            if (reviewer2Id.HasValue)
-                await ctx.TaskItems
-                    .Where(t => t.Id == taskId)
-                    .ExecuteUpdateAsync(s => s
-                        .SetProperty(t => t.Reviewer2Id, reviewer2Id.Value));
+            if (reviewer1Id.HasValue) task.Reviewer1Id = reviewer1Id.Value;
+            if (reviewer2Id.HasValue) task.Reviewer2Id = reviewer2Id.Value;
+            if (testerId.HasValue) task.TesterId = testerId.Value;
 
-            if (testerId.HasValue)
-                await ctx.TaskItems
-                    .Where(t => t.Id == taskId)
-                    .ExecuteUpdateAsync(s => s
-                        .SetProperty(t => t.TesterId, testerId.Value));
+            // 3. EF Core sẽ tự động so sánh và sinh ra đúng 1 câu SQL UPDATE
+            // cho những cột thực sự bị thay đổi.
+            await ctx.SaveChangesAsync();
         }
 
         // ════════════════════════════════════════════════════════
@@ -7039,6 +7045,7 @@ namespace TaskFlowManagement.WinForms.Common
 
 using TaskFlowManagement.Core.Entities;
 using TaskFlowManagement.WinForms.Common;
+using TaskFlowManagement.Core.Constants;
 
 namespace TaskFlowManagement.WinForms.Controls
 {
@@ -7058,6 +7065,7 @@ namespace TaskFlowManagement.WinForms.Controls
     {
         private int _taskId;
         private int _currentStatusId;
+        public int TaskId => _taskId;
 
         public event EventHandler<StatusChangedEventArgs>? StatusChanged;
         public event EventHandler<int>? CardDoubleClicked;
@@ -7199,24 +7207,6 @@ namespace TaskFlowManagement.WinForms.Controls
                 "LOW" => UIHelper.ColorSuccess,
                 _ => UIHelper.ColorMuted
             };
-
-        private static string MapStatusName(int statusId)
-        {
-            return statusId switch
-            {
-                1 => "CREATED",
-                2 => "ASSIGNED",
-                3 => "IN-PROGRESS",
-                4 => "FAILED",
-                5 => "REVIEW-1",
-                6 => "REVIEW-2",
-                7 => "APPROVED",
-                8 => "IN-TEST",
-                9 => "RESOLVED",
-                10 => "CLOSED",
-                _ => "UNKNOWN"
-            };  
-        }
 
         public void UpdateBoundStatus(int newStatusId)
         {
@@ -9306,14 +9296,7 @@ namespace TaskFlowManagement.WinForms.Forms
             WindowState = FormWindowState.Maximized;
             MinimumSize = new Size(1000, 650);
 
-            if (lblHeader != null)
-            {
-                lblHeader.Font = UIHelper.FontHeaderLarge;
-                lblHeader.ForeColor = UIHelper.ColorHeaderFg;
-            }
-
-            if (btnRefresh != null)
-                UIHelper.StyleButton(btnRefresh, UIHelper.ButtonVariant.Primary);
+            EnableDragDropOnAllColumns();
         }
 
         // ── Load Data ─────────────────────────────────────────────────────────
@@ -9457,6 +9440,69 @@ namespace TaskFlowManagement.WinForms.Forms
         {
             if (lblStatus != null && !lblStatus.IsDisposed)
                 lblStatus.Text = msg;
+        }
+
+        private void EnableDragDropOnAllColumns()
+        {
+            foreach (var panel in GetAllColumns())
+            {
+                panel.AllowDrop = true;
+                panel.DragEnter += Column_DragEnter;
+                panel.DragDrop += Column_DragDrop;
+            }
+        }
+
+        private void Column_DragEnter(object? sender, DragEventArgs e)
+            => e.Effect = e.Data?.GetDataPresent(typeof(int)) == true
+                ? DragDropEffects.Move
+                : DragDropEffects.None;
+
+        private async void Column_DragDrop(object? sender, DragEventArgs e)
+        {
+            if (sender is not DoubleBufferedFlowLayoutPanel targetPanel) return;
+            if (e.Data?.GetData(typeof(int)) is not int taskId) return;
+
+            int newStatusId = GetPrimaryStatusForPanel(targetPanel);
+            if (newStatusId <= 0) return;
+
+            var (success, message) = await _taskService!.UpdateStatusAsync(
+                taskId, newStatusId, AppSession.UserId, AppSession.Roles);
+
+            if (!success)
+            {
+                MessageBox.Show(message, "Không thể chuyển trạng thái",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            var card = FindCardById(taskId);
+            if (card == null) return;
+
+            if (card.Parent is FlowLayoutPanel srcPanel)
+                srcPanel.Controls.Remove(card);
+
+            card.UpdateBoundStatus(newStatusId);
+            targetPanel.Controls.Add(card);
+        }
+
+        private int GetPrimaryStatusForPanel(DoubleBufferedFlowLayoutPanel panel)
+        {
+            if (panel == flpTodo) return StatusCreated;
+            if (panel == flpInProgress) return StatusInProgress;
+            if (panel == flpReview) return StatusReview1;
+            if (panel == flpTesting) return StatusInTest;
+            if (panel == flpFailed) return StatusFailed;
+            if (panel == flpDone) return StatusResolved;
+            return 0;
+        }
+
+        private ucTaskCard? FindCardById(int taskId)
+        {
+            foreach (var panel in GetAllColumns())
+                foreach (Control ctrl in panel.Controls)
+                    if (ctrl is ucTaskCard card && card.TaskId == taskId)
+                        return card;
+            return null;
         }
     }
 
@@ -15420,7 +15466,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TaskFlowManagement.WinForms")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+61d0675badef8e79a99988b3845f326a3a7ba3d2")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3eee56b88e64d8cf268a1c8afbc426fbdffe1e6a")]
 [assembly: System.Reflection.AssemblyProductAttribute("TaskFlowManagement.WinForms")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TaskFlowManagement.WinForms")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
@@ -15477,7 +15523,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TaskFlowManagement.WinForms")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+61d0675badef8e79a99988b3845f326a3a7ba3d2")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3eee56b88e64d8cf268a1c8afbc426fbdffe1e6a")]
 [assembly: System.Reflection.AssemblyProductAttribute("TaskFlowManagement.WinForms")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TaskFlowManagement.WinForms")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
