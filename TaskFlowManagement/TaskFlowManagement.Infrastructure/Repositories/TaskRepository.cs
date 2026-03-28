@@ -392,16 +392,30 @@ namespace TaskFlowManagement.Infrastructure.Repositories
         /// <summary>
         /// Chuyển trạng thái workflow — chỉ update StatusId + UpdatedAt.
         /// Dùng ExecuteUpdateAsync, không cần load entity.
+        /// Nếu Status = CLOSED (10) thì tự động hoàn thành task.
         /// </summary>
         public async Task UpdateStatusAsync(int taskId, int statusId)
         {
             using var ctx = _contextFactory.CreateDbContext();
 
-            await ctx.TaskItems
-                .Where(t => t.Id == taskId)
-                .ExecuteUpdateAsync(setters => setters
-                    .SetProperty(t => t.StatusId, statusId)
-                    .SetProperty(t => t.UpdatedAt, DateTime.UtcNow));
+            if (statusId == 10) // CLOSED
+            {
+                await ctx.TaskItems
+                    .Where(t => t.Id == taskId)
+                    .ExecuteUpdateAsync(setters => setters
+                        .SetProperty(t => t.StatusId, statusId)
+                        .SetProperty(t => t.IsCompleted, true)
+                        .SetProperty(t => t.CompletedAt, DateTime.UtcNow)
+                        .SetProperty(t => t.UpdatedAt, DateTime.UtcNow));
+            }
+            else
+            {
+                await ctx.TaskItems
+                    .Where(t => t.Id == taskId)
+                    .ExecuteUpdateAsync(setters => setters
+                        .SetProperty(t => t.StatusId, statusId)
+                        .SetProperty(t => t.UpdatedAt, DateTime.UtcNow));
+            }
         }
 
         /// <summary>
